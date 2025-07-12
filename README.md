@@ -38,7 +38,7 @@ pip install -e .
 
 We present three case studies for how NiceWebRL can help researchers develop either Human-like AI, Human-compatible AI, or Human-assistive AI. The first two are from two recent papers:
 
-* [Preemptive Solving of Future Problems: Multitask Preplay in Humans and Machines](placeholder)
+* [Preemptive Solving of Future Problems: Multitask Preplay in Humans and Machines](https://arxiv.org/abs/2507.05561)
 * [Cross-environment Cooperation Enables Zero-shot Multi-agent Coordination](https://arxiv.org/abs/2504.12714)
 
 <table>
@@ -52,13 +52,13 @@ We present three case studies for how NiceWebRL can help researchers develop eit
   </thead>
   <tbody>
     <tr>
-      <td><code>Multitask Preplay</code><br> <b>Case study 1 (Human-like AI)</b>: <a href="placeholder">Developing a novel Deep RL cognitive science model with NiceWebRL</a> <br>[<a href="https://github.com/wcarvalho/multitask_preplay">folder</a>]</td>
+      <td><code>Multitask Preplay</code><br> <b>Case study 1 (Human-like AI)</b>: Developing a novel Deep RL cognitive science model with NiceWebRL [<a href="https://arxiv.org/abs/2507.05561">Paper</a>] <br>[<a href="https://github.com/wcarvalho/multitask_preplay">folder</a>]</td>
       <td><img src="assets/preplay.png" width="120"/></td>
       <td></td>
       <td>see <a href="https://github.com/wcarvalho/multitask_preplay">Paper Repo</a></td>
     </tr>
     <tr>
-      <td><code>Cross Environment Cooperation</code><br> <b>Case study 2 (Human-compatible AI)</b>: <a href="https://arxiv.org/abs/2504.12714">Developing a novel MARL algorithm for coordinating with humans with NiceWebRL</a> <br>[<a href="https://github.com/wcarvalho/nicewebrl/tree/main/examples/overcooked-CEC">folder</a>]</td>
+      <td><code>Cross Environment Cooperation</code><br> <b>Case study 2 (Human-compatible AI)</b>: Developing a novel MARL algorithm for coordinating with humans with NiceWebRL [<a href="https://arxiv.org/pdf/2504.12714">Paper</a>] <br>[<a href="https://github.com/wcarvalho/nicewebrl/tree/main/examples/overcooked-CEC">folder</a>]</td>
       <td><img src="assets/cec.png" width="120"/></td>
       <td>follow instructions in <code>examples/overcooked-CEC</code></td>
       <td><code>cd examples/overcooked-CEC; python web_app.py 'counter_circuit'</code></td>
