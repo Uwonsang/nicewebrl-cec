@@ -4,11 +4,12 @@
 
 **Table of Contents**
 
-* [Install](#install)
-* [Functional example folders](#working-examples)
-  * [Paper case studies](#paper-case-studies)
-  * [More examples](#more-examples)
-* [Other Jax environments compatible with NiceWebRL](#other-jax-environments-compatible-with-nicewebrl)
+- [NiceWebRL: a Python library for human subject experiments with reinforcement learning environments](#nicewebrl-a-python-library-for-human-subject-experiments-with-reinforcement-learning-environments)
+  - [Install](#install)
+  - [Working Examples](#working-examples)
+    - [Paper case studies](#paper-case-studies)
+    - [More examples](#more-examples)
+  - [Other Jax environments compatible with NiceWebRL](#other-jax-environments-compatible-with-nicewebrl)
 
 
 <img src="assets/human-ai-comparisons.png" alt="Comparison Image" style="width: 100%; max-width: 800px;">
@@ -28,7 +29,7 @@ To facilitate its adoption, we present several [working examples](#working-examp
 pip install git+https://github.com/wcarvalho/nicewebrl
 
 # more manually (first clone then)
-conda create -n nicewebrl python=3.10 pip wheel -y
+conda create -n nicewebrl python=3.11 pip wheel -y
 conda activate nicewebrl
 pip install -e .
 ```

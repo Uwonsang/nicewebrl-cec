@@ -30,7 +30,7 @@ def restore_texture_cache_if_needed():
 
 nicewebrl.run(
     storage_secret="a_very_secret_key_for_testing_only_12345",
-    experiment_file="examples/craftax/experiment_structure.py",
+    experiment_file="experiment_structure.py",
     title="NiceWebRL Craftax Experiment",
     reload=False, 
     on_startup_fn=restore_texture_cache_if_needed, # e.g. restore cache

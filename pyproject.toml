@@ -45,6 +45,12 @@ xland = [
     "xminigrid",
     "tqdm",
 ]
+jaxmaze = [
+    "jaxmaze @ git+https://github.com/wcarvalho/JaxMaze.git",
+    "google-cloud-storage",
+    "jax<0.5",
+    "jaxlib<0.5",
+]
 xland-assistant = [
     "nicegui>=1.4.0",
     "fastapi>=0.68.0",

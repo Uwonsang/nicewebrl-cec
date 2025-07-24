@@ -223,7 +223,7 @@ def run(
     title: str = "NiceWebRL",
     data_dir: str = DATA_DIR_DEFAULT,
     database_file: str = DATABASE_FILE_DEFAULT,
-    reload: bool = False,
+    reload: bool = True,
     on_startup_fn: Optional[Callable] = None,
     on_termination_fn: Optional[Callable] = None,
 ):

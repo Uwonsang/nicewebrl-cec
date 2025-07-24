@@ -106,7 +106,8 @@ async def wait_for_button_or_keypress(button, ignore_recent_press=False):
       keyboard = ui.keyboard(on_key=on_keypress)
 
       try:
-        tasks = [button.clicked(), key_pressed_future]
+        button_task = asyncio.create_task(button.clicked())
+        tasks = [button_task, key_pressed_future]
         done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
 
         for task in pending:
