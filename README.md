@@ -86,6 +86,12 @@ We present three case studies for how NiceWebRL can help researchers develop eit
   </thead>
   <tbody>
     <tr>
+      <td><code>JaxMaze</code><br> House maze navigation domain (single agent setting) <br>[<a href="https://github.com/wcarvalho/nicewebrl/tree/main/examples/jaxmaze">folder</a>]</td>
+      <td><img src="https://github.com/wcarvalho/JaxMaze/blob/main/example.png?raw=true" width="120"/></td>
+      <td><code>pip install -e ".[jaxmaze]"</code></td>
+      <td><code>cd examples/jaxmaze; python web_app.py</code></td>
+    </tr>
+    <tr>
       <td><code>Craftax</code><br> 2D Minecraft domain (single agent setting) <br>[<a href="https://github.com/wcarvalho/nicewebrl/tree/main/examples/craftax">folder</a>]</td>
       <td><img src="assets/craftax.gif" width="120"/></td>
       <td><code>pip install -e ".[craftax]"</code></td>
