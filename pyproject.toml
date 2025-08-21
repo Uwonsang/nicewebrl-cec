@@ -22,8 +22,8 @@ dependencies = [
     "Pillow",
     "jax>=0.4.16",
     "jaxlib>=0.4.16",
-    "distrax>=0.1.5",
-    "flax>=0.7",
+    "distrax",
+    "flax",
     "numpy>=1.26.4,<2",
     "polars",
 ]
@@ -64,7 +64,7 @@ xland-assistant = [
     "google-cloud-storage",
 ]
 cec = [
-    "flax>=0.7",
+    "flax",
     "jax>=0.4.23,<=0.4.25",  # needed for backward compatibility
     "jaxlib>=0.4.23,<=0.4.25",  # needed for backward compatibility
 ]
