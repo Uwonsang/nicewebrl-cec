@@ -1,7 +1,0 @@
-config.py
-*google-cloud-key*
-.dockerignore
-*toml
-data
-.nicegui
-user_data

@@ -1,0 +1,27 @@
+[submodule "examples/craftax"]
+	path = examples/craftax
+	url = https://github.com/wcarvalho/nicewebrl-example-craftax.git
+[submodule "examples/dual_destination-CEC"]
+	path = examples/dual_destination-CEC
+	url = https://github.com/wcarvalho/nicewebrl-example-dual_destination-CEC.git
+[submodule "examples/jaxmaze"]
+	path = examples/jaxmaze
+	url = https://github.com/wcarvalho/nicewebrl-example-jaxmaze.git
+[submodule "examples/minigrid-LLM-assistant"]
+	path = examples/minigrid-LLM-assistant
+	url = https://github.com/wcarvalho/nicewebrl-example-minigrid-LLM-assistant.git
+[submodule "examples/minigrid-ppo"]
+	path = examples/minigrid-ppo
+	url = https://github.com/wcarvalho/nicewebrl-example-minigrid-ppo.git
+[submodule "examples/overcooked-CEC"]
+	path = examples/overcooked-CEC
+	url = https://github.com/wcarvalho/nicewebrl-example-overcooked-CEC.git
+[submodule "examples/overcooked"]
+	path = examples/overcooked
+	url = https://github.com/wcarvalho/nicewebrl-example-overcooked.git
+[submodule "examples/xland-minigrid"]
+	path = examples/xland-minigrid
+	url = https://github.com/wcarvalho/nicewebrl-example-xland-minigrid.git
+[submodule "examples/xland-LLM-assistant"]
+	path = examples/xland-LLM-assistant
+	url = https://github.com/wcarvalho/nicewebrl-example-xland-LLM-assistant.git
