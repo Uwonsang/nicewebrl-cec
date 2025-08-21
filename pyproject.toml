@@ -64,9 +64,8 @@ xland-assistant = [
     "google-cloud-storage",
 ]
 cec = [
-    "flax",
-    "jax>=0.4.23,<=0.4.25",  # needed for backward compatibility
-    "jaxlib>=0.4.23,<=0.4.25",  # needed for backward compatibility
+    "jax>=0.4.23,<=0.4.26",  # needed for backward compatibility
+    "jaxlib>=0.4.23,<=0.4.26",  # needed for backward compatibility
 ]
 [project.urls]
 "Homepage" = "https://github.com/wcarvalho/nicewebrl"
