@@ -32,6 +32,11 @@ pip install git+https://github.com/wcarvalho/nicewebrl
 conda create -n nicewebrl python=3.11 pip wheel -y
 conda activate nicewebrl
 pip install -e .
+
+# Clone with examples (submodules)
+git clone --recurse-submodules https://github.com/wcarvalho/nicewebrl
+# or if already cloned:
+git submodule update --init --recursive
 ```
 
 ## Working Examples
@@ -47,28 +52,24 @@ We present three case studies for how NiceWebRL can help researchers develop eit
     <tr>
       <th>Description</th>
       <th>Visualization</th>
-      <th>Installation</th>
-      <th>Run Command</th>
+      <th>Folder</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td><code>Multitask Preplay</code><br> <b>Case study 1 (Human-like AI)</b>: Developing a novel Deep RL cognitive science model with NiceWebRL [<a href="https://arxiv.org/abs/2507.05561">Paper</a>] <br>[<a href="https://github.com/wcarvalho/multitask_preplay">folder</a>]</td>
+      <td><code>Multitask Preplay</code><br> <b>Case study 1 (Human-like AI)</b>: Developing a novel Deep RL cognitive science model with NiceWebRL [<a href="https://arxiv.org/abs/2507.05561">Paper</a>]</td>
       <td><img src="assets/preplay.png" width="120"/></td>
-      <td></td>
-      <td>see <a href="https://github.com/wcarvalho/multitask_preplay">Paper Repo</a></td>
+      <td><a href="https://github.com/wcarvalho/multitask_preplay">External Repo</a></td>
     </tr>
     <tr>
-      <td><code>Cross Environment Cooperation</code><br> <b>Case study 2 (Human-compatible AI)</b>: Developing a novel MARL algorithm for coordinating with humans with NiceWebRL [<a href="https://arxiv.org/pdf/2504.12714">Paper</a>] <br>[<a href="https://github.com/wcarvalho/nicewebrl/tree/main/examples/overcooked-CEC">folder</a>]</td>
+      <td><code>Cross Environment Cooperation</code><br> <b>Case study 2 (Human-compatible AI)</b>: Developing a novel MARL algorithm for coordinating with humans with NiceWebRL [<a href="https://arxiv.org/pdf/2504.12714">Paper</a>]</td>
       <td><img src="assets/cec.png" width="120"/></td>
-      <td>follow instructions in <code>examples/overcooked-CEC</code></td>
-      <td><code>cd examples/overcooked-CEC; python web_app.py 'counter_circuit'</code></td>
+      <td><a href="https://github.com/wcarvalho/nicewebrl-example-overcooked-CEC">overcooked-CEC</a></td>
     </tr>
     <tr>
-      <td><code>XLand-Minigrid LLM</code><br> <b>Case study 3 (Human-assistive AI)</b>: Developing an LLM-assistant for sequential-decision making tasks in a virtual environment. <br>[<a href="https://github.com/wcarvalho/nicewebrl/tree/main/examples/xland-LLM-assistant">folder</a>]</td>
+      <td><code>XLand-Minigrid LLM</code><br> <b>Case study 3 (Human-assistive AI)</b>: Developing an LLM-assistant for sequential-decision making tasks in a virtual environment.</td>
       <td><img src="assets/xland_minigrid.gif" width="120"/></td>
-      <td><code>pip install -e ".[xland-assistant]"</code></td>
-      <td><code>cd examples/xland-LLM-assistant; python web_app_assistant.py</code></td>
+      <td><a href="https://github.com/wcarvalho/nicewebrl-example-xland-LLM-assistant">xland-LLM-assistant</a></td>
     </tr>
   </tbody>
 </table>
@@ -80,58 +81,49 @@ We present three case studies for how NiceWebRL can help researchers develop eit
     <tr>
       <th>Description</th>
       <th>Visualization</th>
-      <th>Installation</th>
-      <th>Run Command</th>
+      <th>Folder</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td><code>JaxMaze</code><br> House maze navigation domain (single agent setting) <br>[<a href="https://github.com/wcarvalho/nicewebrl/tree/main/examples/jaxmaze">folder</a>]</td>
+      <td><code>JaxMaze</code><br> House maze navigation domain (single agent setting)</td>
       <td><img src="https://github.com/wcarvalho/JaxMaze/blob/main/example.png?raw=true" width="120"/></td>
-      <td><code>pip install -e ".[jaxmaze]"</code></td>
-      <td><code>cd examples/jaxmaze; python web_app.py</code></td>
+      <td><a href="https://github.com/wcarvalho/nicewebrl-example-jaxmaze">jaxmaze</a></td>
     </tr>
     <tr>
-      <td><code>Craftax</code><br> 2D Minecraft domain (single agent setting) <br>[<a href="https://github.com/wcarvalho/nicewebrl/tree/main/examples/craftax">folder</a>]</td>
+      <td><code>Craftax</code><br> 2D Minecraft domain (single agent setting)</td>
       <td><img src="assets/craftax.gif" width="120"/></td>
-      <td><code>pip install -e ".[craftax]"</code></td>
-      <td><code>cd examples/craftax; python web_app.py</code></td>
+      <td><a href="https://github.com/wcarvalho/nicewebrl-example-craftax">craftax</a></td>
     </tr>
     <tr>
-      <td><code>XLand-Minigrid</code><br> XLand-Minigrid (single agent setting) <br>[<a href="https://github.com/wcarvalho/nicewebrl/tree/main/examples/xland-minigrid">folder</a>]</td>
+      <td><code>XLand-Minigrid</code><br> XLand-Minigrid (single agent setting)</td>
       <td><img src="assets/xland_minigrid.gif" width="120"/></td>
-      <td><code>pip install -e ".[xland]"</code></td>
-      <td><code>cd examples/xland-minigrid; python web_app.py</code></td>
+      <td><a href="https://github.com/wcarvalho/nicewebrl-example-xland-minigrid">xland-minigrid</a></td>
     </tr>
     <tr>
-      <td><code>Minigrid PPO</code><br> Minigrid (single agent setting, has PPO implementation) <br>[<a href="https://github.com/wcarvalho/nicewebrl/tree/main/examples/minigrid-ppo">folder</a>]</td>
+      <td><code>Minigrid PPO</code><br> Minigrid (single agent setting, has PPO implementation)</td>
       <td><img src="assets/navix.gif" width="120"/></td>
-      <td><code>pip install -e "."</code></td>
-      <td><code>cd examples/minigrid-ppo; python web_app.py</code></td>
+      <td><a href="https://github.com/wcarvalho/nicewebrl-example-minigrid-ppo">minigrid-ppo</a></td>
     </tr>
     <tr>
-      <td><code>Minigrid API LLM</code><br> Minigrid with API-based LLM assistant <br>[<a href="https://github.com/wcarvalho/nicewebrl/tree/main/examples/minigrid-LLM-assistant">folder</a>]</td>
+      <td><code>Minigrid API LLM</code><br> Minigrid with API-based LLM assistant</td>
       <td><img src="assets/navix.gif" width="120"/></td>
-      <td><code>pip install -e "."</code></td>
-      <td><code>cd examples/minigrid-LLM-assistant; python web_app_Gemini.py</code></td>
+      <td><a href="https://github.com/wcarvalho/nicewebrl-example-minigrid-LLM-assistant">minigrid-LLM-assistant</a></td>
     </tr>
     <tr>
-      <td><code>Minigrid Local LLM</code><br> Minigrid with <b>local</b> LLM assistant <br>[<a href="https://github.com/wcarvalho/nicewebrl/tree/main/examples/minigrid-LLM-assistant">folder</a>]</td>
+      <td><code>Minigrid Local LLM</code><br> Minigrid with <b>local</b> LLM assistant</td>
       <td><img src="assets/navix.gif" width="120"/></td>
-      <td><code>pip install -e "."</code></td>
-      <td><code>cd examples/minigrid-LLM-assistant; python web_app_Local.py</code></td>
+      <td><a href="https://github.com/wcarvalho/nicewebrl-example-minigrid-LLM-assistant">minigrid-LLM-assistant</a></td>
     </tr>
     <tr>
-      <td><code>Dual Destination</code><br> Dual Destination (Human-AI setting) <br>[<a href="https://github.com/wcarvalho/nicewebrl/tree/main/examples/dual_destination-human-AI-CEC">folder</a>]</td>
+      <td><code>Dual Destination</code><br> Dual Destination (Human-AI setting)</td>
       <td><img src="assets/dual-destination.png" width="120"/></td>
-      <td><code>pip install -e ".[jaxmarl]"</code></td>
-      <td><code>cd examples/dual_destination-human-AI-CEC; python web_app.py</code></td>
+      <td><a href="https://github.com/wcarvalho/nicewebrl-example-dual_destination-CEC">dual_destination-CEC</a></td>
     </tr>
     <tr>
-      <td><code>Overcooked</code><br> Overcooked (Human-Human setting) <br>[<a href="https://github.com/wcarvalho/nicewebrl/tree/main/examples/overcooked-human-human">folder</a>]</td>
+      <td><code>Overcooked</code><br> Overcooked (Human-Human setting)</td>
       <td><img src="assets/jaxmarl.gif" width="120"/></td>
-      <td><code>pip install -e ".[jaxmarl]"</code></td>
-      <td><code>cd examples/overcooked-human-human; python web_app.py</code></td>
+      <td><a href="https://github.com/wcarvalho/nicewebrl-example-overcooked">overcooked</a></td>
     </tr>
   </tbody>
 </table>
