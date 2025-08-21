@@ -57,17 +57,17 @@ We present three case studies for how NiceWebRL can help researchers develop eit
   </thead>
   <tbody>
     <tr>
-      <td><code>Multitask Preplay</code><br> <b>Case study 1 (Human-like AI)</b>: Developing a novel Deep RL cognitive science model with NiceWebRL [<a href="https://arxiv.org/abs/2507.05561">Paper</a>]</td>
+      <td><b>Case study 1 (Human-like AI)</b>: Developing a novel Deep RL cognitive science model with NiceWebRL [<a href="https://arxiv.org/abs/2507.05561">Paper</a>]</td>
       <td><img src="assets/preplay.png" width="120"/></td>
-      <td><a href="https://github.com/wcarvalho/multitask_preplay">External Repo</a></td>
+      <td><a href="https://github.com/wcarvalho/multitask_preplay">Multitask Preplay</a></td>
     </tr>
     <tr>
-      <td><code>Cross Environment Cooperation</code><br> <b>Case study 2 (Human-compatible AI)</b>: Developing a novel MARL algorithm for coordinating with humans with NiceWebRL [<a href="https://arxiv.org/pdf/2504.12714">Paper</a>]</td>
+      <td><b>Case study 2 (Human-compatible AI)</b>: Developing a novel MARL algorithm for coordinating with humans with NiceWebRL [<a href="https://arxiv.org/pdf/2504.12714">Paper</a>]</td>
       <td><img src="assets/cec.png" width="120"/></td>
       <td><a href="https://github.com/wcarvalho/nicewebrl-example-overcooked-CEC">overcooked-CEC</a></td>
     </tr>
     <tr>
-      <td><code>XLand-Minigrid LLM</code><br> <b>Case study 3 (Human-assistive AI)</b>: Developing an LLM-assistant for sequential-decision making tasks in a virtual environment.</td>
+      <td><b>Case study 3 (Human-assistive AI)</b>: Developing an LLM-assistant for sequential-decision making tasks in a virtual environment.</td>
       <td><img src="assets/xland_minigrid.gif" width="120"/></td>
       <td><a href="https://github.com/wcarvalho/nicewebrl-example-xland-LLM-assistant">xland-LLM-assistant</a></td>
     </tr>
