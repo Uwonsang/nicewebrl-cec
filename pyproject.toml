@@ -63,10 +63,7 @@ xland-assistant = [
     "tqdm",
     "google-cloud-storage",
 ]
-cec = [
-    "jax==0.4.23",  # needed for backward compatibility
-    "jaxlib==0.4.23",  # needed for backward compatibility
-]
+
 [project.urls]
 "Homepage" = "https://github.com/wcarvalho/nicewebrl"
 "Bug Tracker" = "https://github.com/wcarvalho/nicewebrl/issues"
