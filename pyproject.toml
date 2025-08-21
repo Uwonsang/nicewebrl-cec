@@ -65,6 +65,8 @@ xland-assistant = [
 ]
 cec = [
     "flax>=0.7",
+    "jax>=0.4.23,<=0.4.25",  # needed for backward compatibility
+    "jaxlib>=0.4.23,<=0.4.25",  # needed for backward compatibility
 ]
 [project.urls]
 "Homepage" = "https://github.com/wcarvalho/nicewebrl"
