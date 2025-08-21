@@ -23,7 +23,7 @@ dependencies = [
     "jax>=0.4.16",
     "jaxlib>=0.4.16",
     "distrax>=0.1.5",
-    "flax>=0.7",
+    "flax>=0.8.2",
     "numpy>=1.26.4,<2",
     "polars",
 ]
@@ -63,7 +63,9 @@ xland-assistant = [
     "tqdm",
     "google-cloud-storage",
 ]
-
+cec = [
+    "flax>=0.7",
+]
 [project.urls]
 "Homepage" = "https://github.com/wcarvalho/nicewebrl"
 "Bug Tracker" = "https://github.com/wcarvalho/nicewebrl/issues"
