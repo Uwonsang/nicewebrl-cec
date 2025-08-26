@@ -1,6 +1,6 @@
 # NiceWebRL: a Python library for human subject experiments with reinforcement learning environments
 
-
+This repository is the official implementation of [NiceWebRL: a Python library for human subject experiments with reinforcement learning environments](https://arxiv.org/pdf/2508.15693)
 
 **Table of Contents**
 
