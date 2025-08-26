@@ -4,7 +4,7 @@ This repository is the official implementation of [NiceWebRL: a Python library f
 
 **Table of Contents**
 
-- [NiceWebRL: a Python library for human subject experiments with reinforcement learning environments](#nicewebrl-a-python-library-for-human-subject-experiments-with-reinforcement-learning-environments)
+- [NiceWebRL](#nicewebrl)
   - [Install](#install)
   - [Working Examples](#working-examples)
     - [Paper case studies](#paper-case-studies)
