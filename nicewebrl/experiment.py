@@ -110,7 +110,7 @@ class Experiment(Container):
     super().__post_init__()
     if self.name is None:
       self.name = f"experiment_{uuid.uuid4().hex[:8]}"
-    
+
     stage_idx = 0
     for idx, block in enumerate(self.blocks):
       block.unique_id = f"{idx}_{block.unique_id}"
