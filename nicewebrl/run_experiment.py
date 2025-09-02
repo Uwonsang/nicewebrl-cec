@@ -2,9 +2,10 @@ import os
 import asyncio
 import time
 from datetime import datetime
-from typing import Optional, Callable, Awaitable, Any
+from typing import Optional, Callable, Any, Union
 import importlib.util
 
+from fastapi import Request
 from nicegui import app, ui, Client
 from fastapi import APIRouter
 from tortoise import Tortoise
@@ -25,6 +26,7 @@ load_error: Optional[str] = None
 
 DATA_DIR_DEFAULT = "data"
 DATABASE_FILE_DEFAULT = "db.sqlite"
+
 
 ### --- Status Router ---
 router = APIRouter()
@@ -252,10 +254,16 @@ async def run_stage(stage: stages.Stage, container: ui.element):
 async def start_experiment(
   meta_container: ui.element,
   stage_container: ui.element,
+  on_startup_fn: Optional[Callable[[ui.element], Any]] = None,
   on_termination_fn: Optional[Callable] = None,
 ):
   user_id = app.storage.user.get("seed", "unknown")
   await experiment_obj.initialize()
+
+  if on_startup_fn:
+    result = on_startup_fn(stage_container)
+    if asyncio.iscoroutine(result):
+      await result
 
   # Register keydown handler (NiceGUI should be ready and focused by now)
   ui.on("keydown", lambda e: global_handle_key_press(e, stage_container))
@@ -301,7 +309,9 @@ def run(
   data_dir: str = DATA_DIR_DEFAULT,
   database_file: str = DATABASE_FILE_DEFAULT,
   reload: bool = True,
-  on_startup_fn: Optional[Callable] = None,
+  on_database_init_fn: Optional[Callable] = None,
+  init_user_fn: Optional[Callable[[Request], Any]] = None,
+  on_startup_fn: Optional[Callable[[ui.element], Any]] = None,
   on_termination_fn: Optional[Callable] = None,
 ):
   global module_logger, load_start_time
@@ -312,8 +322,8 @@ def run(
 
   async def _on_startup():
     await init_db(f"sqlite:///{db_path}")
-    if on_startup_fn:
-      result = on_startup_fn()
+    if on_database_init_fn:
+      result = on_database_init_fn()
       if asyncio.iscoroutine(result):
         await result
     global load_start_time
@@ -324,8 +334,12 @@ def run(
   app.on_shutdown(close_db)
 
   @ui.page("/")
-  async def index(client: Client):
+  async def index(client: Client, request: Request):
     nicewebrl.initialize_user()
+    if init_user_fn:
+      result = init_user_fn(request)
+      if asyncio.iscoroutine(result):
+        await result
 
     if not env_loaded.is_set():
       show_loading_screen()
@@ -385,7 +399,11 @@ def run(
         with display_container.style("align-items: center;"):
           # Wait for NiceGUI to be fully ready before starting experiment
           await wait_for_nicegui_ready()
-          await start_experiment(display_container, stage_container, on_termination_fn)
+          await start_experiment(
+            display_container,
+            stage_container,
+            on_startup_fn,
+            on_termination_fn)
 
   ui.run(
     storage_secret=storage_secret, host=host, port=port, reload=reload, title=title
