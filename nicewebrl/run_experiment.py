@@ -57,7 +57,7 @@ def show_loading_screen():
       .classes("fixed-center shadow-lg")
       .style("width: 60vw; max-height: 80vh; padding: 2rem;")
     ):
-      ui.label("🚀 Loading Your Experiment...").classes("text-h4 text-center q-mb-md")
+      ui.label("🚀 Loading Experiment...").classes("text-h4 text-center q-mb-md")
       ui.label(
         "This may take up to 5 minutes. Please don’t refresh or close this tab."
       ).classes("text-subtitle1 text-grey q-mb-xl")
@@ -238,7 +238,6 @@ async def start_experiment(
   on_startup_fn: Optional[Callable[[ui.element], Any]] = None,
   on_termination_fn: Optional[Callable] = None,
 ):
-  user_id = app.storage.user.get("seed", "unknown")
   await experiment_obj.initialize()
 
   if on_startup_fn:
@@ -247,7 +246,7 @@ async def start_experiment(
       await result
 
   # Register keydown handler (NiceGUI should be ready and focused by now)
-  ui.on("keydown", lambda e: global_handle_key_press(e, stage_container))
+  ui.on("key_pressed", lambda e: global_handle_key_press(e, stage_container))
 
   while experiment_obj.not_finished():
     stage = await experiment_obj.get_stage()
@@ -266,7 +265,7 @@ async def start_experiment(
 
 
 async def global_handle_key_press(e, container):
-  module_logger.info(f"Key press detected: {e}")
+  module_logger.info("--------------- key press ---------------")
   if experiment_obj.finished():
     return
   stage = await experiment_obj.get_stage()
@@ -292,6 +291,7 @@ def run(
   init_user_fn: Optional[Callable[[Request], Any]] = None,
   on_startup_fn: Optional[Callable[[ui.element], Any]] = None,
   on_termination_fn: Optional[Callable] = None,
+  **kwargs,
 ):
   global module_logger, load_start_time
 
@@ -385,5 +385,10 @@ def run(
             on_termination_fn)
 
   ui.run(
-    storage_secret=storage_secret, host=host, port=port, reload=reload, title=title
+    storage_secret=storage_secret,
+    host=host,
+    port=port,
+    reload=reload,
+    title=title,
+    **kwargs,
   )

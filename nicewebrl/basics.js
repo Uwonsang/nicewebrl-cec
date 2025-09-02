@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   window.require_fullscreen = false;
   window.accept_keys = false;
   window.next_states = null;
+  window.key_count = 0;
 
   ////////////////
   // how to handle key presses?
@@ -81,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     console.log('-------------------------------------------')
     console.log('active element:', document.activeElement.id);
     if (document.activeElement && document.activeElement.id === 'chat-input') {
-      console.log('chat input focused');
+      //console.log('chat input focused');
       return;
     }
 
@@ -89,17 +90,18 @@ document.addEventListener('DOMContentLoaded', async function () {
     if ((event.key === " " || event.code === "Space") && spacebarPrevented) {
       // Prevent the default action (toggling fullscreen)
       event.preventDefault();
-      console.log('prevented spacebar');
+      if (window.key_count < 1) {console.log('prevented spacebar');}
     }
 
     // Prevent default behavior for arrow keys
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) {
-      console.log('preventing default arrow key behavior');
+      if (window.key_count < 1) { console.log('preventing default arrow key behavior'); }
       event.preventDefault();
     }
 
     console.log(event.key);
     if (window.next_states !== null && window.accept_keys && event.key in window.next_states) {
+      //console.log('registering key press');
       if (!window.require_fullscreen || await isFullscreen()) {
         next_state = window.next_states[event.key];
         window.next_states = null;
@@ -118,7 +120,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         keydownTime: keydownTime,
         imageSeenTime: window.imageSeenTime
       });
+      console.log('emitted key_pressed');
     }
+    window.key_count = window.key_count + 1;
+
   }, true); // Using capturing phase to catch the event before other handlers
 
 
