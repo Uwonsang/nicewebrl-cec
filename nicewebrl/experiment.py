@@ -233,6 +233,11 @@ class Experiment(Container):
     block_idx = self.get_block_idx()
     return block_idx < len(self.blocks)
 
+  def finished(self):
+    block_idx = self.get_block_idx()
+    finished = app.storage.user.get("experiment_finished", False)
+    return block_idx >= len(self.blocks) or finished
+
   def force_finish(self):
     app.storage.user["stage_idx"] = self.num_stages
     app.storage.user["block_idx"] = self.num_blocks

@@ -11,7 +11,7 @@ from fastapi import APIRouter
 from tortoise import Tortoise
 
 import nicewebrl
-from nicewebrl.experiment import SimpleExperiment
+from nicewebrl.experiment import SimpleExperiment, Experiment
 from nicewebrl import stages
 from nicewebrl.utils import get_user_lock
 from nicewebrl.logging import setup_logging, get_logger
@@ -85,12 +85,6 @@ def show_loading_screen():
 
       ui.timer(1.0, update)
 
-      # Motivational quote
-      ui.separator()
-      ui.label("“Great things take time — thanks for your patience!”").classes(
-        "italic text-center text-grey"
-      )
-
       # JS to auto-poll /status
       ui.add_body_html("""
             <script>
@@ -120,7 +114,7 @@ async def footer(footer_container):
       ).classes("text-sm text-gray-500")
 
       def text_display(v):
-        stage_idx = max(experiment_obj.num_stages, int(v) + 1)
+        stage_idx = min(experiment_obj.num_stages, int(v) + 1)
         return f"Stage: {stage_idx}/{experiment_obj.num_stages}"
 
       ui.label().bind_text_from(app.storage.user, "stage_idx", text_display).classes(
@@ -154,7 +148,9 @@ async def load_experiment(file: str):
       mod = importlib.util.module_from_spec(spec)
       spec.loader.exec_module(mod)  # Blocking call
       experiment = getattr(mod, "experiment", None)
-      if not isinstance(experiment, SimpleExperiment):
+      if not isinstance(
+        experiment,
+        Union[SimpleExperiment, Experiment]):
         raise TypeError("Expected a SimpleExperiment instance named 'experiment'")
       return experiment
 
@@ -191,33 +187,18 @@ async def check_if_over(container, episode_limit=60):
 ### --- Wait for NiceGUI Ready ---
 async def wait_for_nicegui_ready(timeout_seconds=10):
   """Wait for the client to signal that NiceGUI is fully loaded and ready"""
-  print(f"DEBUGGING: Waiting for NiceGUI to be ready...")
-
   start_time = asyncio.get_event_loop().time()
-  check_count = 0
   while True:
-    check_count += 1
-    print(f"DEBUGGING: Check #{check_count} for window.niceGuiReady...")
-
-    try:
-      # Check if client has signaled ready
-      result = await ui.run_javascript(
-        "return window.niceGuiReady || false;", timeout=1.0
-      )
-      print(f"DEBUGGING: window.niceGuiReady = {result}")
-
-      if result:
-        print(f"DEBUGGING: NiceGUI ready signal received!")
-        break
-    except Exception as e:
-      print(f"DEBUGGING: Error checking ready signal: {e}")
+    # Check if client has signaled ready
+    result = await ui.run_javascript(
+      "return window.niceGuiReady || false;", timeout=1.0
+    )
+    if result:
+      break
 
     # Check timeout
     elapsed = asyncio.get_event_loop().time() - start_time
     if elapsed > timeout_seconds:
-      print(
-        f"DEBUGGING: Timeout waiting for NiceGUI ready signal after {check_count} checks, proceeding anyway"
-      )
       break
 
     # Wait a bit before checking again
@@ -277,13 +258,11 @@ async def start_experiment(
     await experiment_obj.advance_stage()
 
   if on_termination_fn:
+    nicewebrl.clear_element(meta_container)
+    nicewebrl.clear_element(stage_container)
     result = on_termination_fn()
     if asyncio.iscoroutine(result):
       await result
-
-  nicewebrl.clear_element(meta_container)
-  with meta_container:
-    ui.markdown("# Experiment Over\nThank you for your participation.")
 
 
 async def global_handle_key_press(e, container):
