@@ -190,11 +190,14 @@ async def wait_for_nicegui_ready(timeout_seconds=10):
   start_time = asyncio.get_event_loop().time()
   while True:
     # Check if client has signaled ready
-    result = await ui.run_javascript(
-      "return window.niceGuiReady || false;", timeout=1.0
-    )
-    if result:
-      break
+    try:
+      result = await ui.run_javascript(
+        "return window.niceGuiReady || false;", timeout=10.0
+      )
+      if result:
+        break
+    except Exception as e:
+      module_logger.error(f"Error checking ready signal: {e}")
 
     # Check timeout
     elapsed = asyncio.get_event_loop().time() - start_time
