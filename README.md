@@ -10,7 +10,7 @@ This repository is the official implementation of [NiceWebRL: a Python library f
   - [More examples](#more-examples)
 - [Other Jax environments compatible with NiceWebRL](#other-jax-environments-compatible-with-nicewebrl)
 - [Papers that have used NiceWebRL](#papers-that-have-used-nicewebrl)
-- [Papers that have used NiceWebRL](#citation)
+- [Citation](#citation)
 
 
 <img src="assets/human-ai-comparisons.png" alt="Comparison Image" style="width: 100%; max-width: 800px;">
