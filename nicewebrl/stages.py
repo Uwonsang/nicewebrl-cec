@@ -598,7 +598,9 @@ class EnvStage(Stage):
   async def handle_key_press(self, event, container):
     key = event.args["key"]
     if self.verbosity:
-      logger.info(f"handle_key_press key: {key}")
+      action_idx = self.key_to_action.get(key, -1)
+      action_name = self.action_to_name.get(action_idx, key)
+      logger.info(f"handle_key_press key: {key} --> {action_name}")
     if not self.get_user_data("started", False):
       if self.verbosity:
         logger.info(f"pressed '{key}' before started")

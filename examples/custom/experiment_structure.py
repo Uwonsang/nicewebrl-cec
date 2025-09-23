@@ -41,9 +41,7 @@ jax_env = environment.Environment()
 jax_web_env = JaxWebEnv(env=jax_env, actions=action_array)
 
 
-example_env_params = environment.EnvParams(
-  train=True
-)
+example_env_params = environment.EnvParams(train=True)
 
 # Call this function to pre-compile jax functions before experiment starts.
 jax_web_env.precompile(dummy_env_params=example_env_params)

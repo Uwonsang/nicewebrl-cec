@@ -148,9 +148,7 @@ async def load_experiment(file: str):
       mod = importlib.util.module_from_spec(spec)
       spec.loader.exec_module(mod)  # Blocking call
       experiment = getattr(mod, "experiment", None)
-      if not isinstance(
-        experiment,
-        Union[SimpleExperiment, Experiment]):
+      if not isinstance(experiment, Union[SimpleExperiment, Experiment]):
         raise TypeError("Expected a SimpleExperiment instance named 'experiment'")
       return experiment
 
@@ -382,10 +380,8 @@ def run(
           # Wait for NiceGUI to be fully ready before starting experiment
           await wait_for_nicegui_ready()
           await start_experiment(
-            display_container,
-            stage_container,
-            on_startup_fn,
-            on_termination_fn)
+            display_container, stage_container, on_startup_fn, on_termination_fn
+          )
 
   ui.run(
     storage_secret=storage_secret,

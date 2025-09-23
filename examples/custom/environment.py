@@ -26,41 +26,35 @@ class Actions(IntEnum):
   left = 2
   up = 3
 
-class Environment:
 
-  def __init__(
-      self, 
-      static_params: Optional[StaticEnvParams] = None):
+class Environment:
+  def __init__(self, static_params: Optional[StaticEnvParams] = None):
     static_params = static_params or StaticEnvParams()
     self.static_params = static_params
 
-  def reset(
-      self,
-      rng: jax.random.PRNGKey,
-      params: Optional[struct.PyTreeNode] = None):
+  def reset(self, rng: jax.random.PRNGKey, params: Optional[struct.PyTreeNode] = None):
     """Environment reset logic"""
     return TimeStep()
 
   def step(
-      self,
-      rng: jax.random.PRNGKey,
-      prior_timestep: TimeStep,
-      action: int,
-      params: Optional[struct.PyTreeNode] = None
-      ):
+    self,
+    rng: jax.random.PRNGKey,
+    prior_timestep: TimeStep,
+    action: int,
+    params: Optional[struct.PyTreeNode] = None,
+  ):
     """Environment dynamics logic."""
     return TimeStep()
 
-
   @property
   def num_actions(self) -> int:
-      """Number of actions possible in environment."""
-      return 4
+    """Number of actions possible in environment."""
+    return 4
 
 
 def render_fn(timestep: TimeStep):
-
   return jnp.array
+
 
 ###### Usage
 static_params = StaticEnvParams()
