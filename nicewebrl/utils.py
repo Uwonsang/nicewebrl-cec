@@ -225,12 +225,14 @@ def initialize_user(*, seed: int = 0, request: Request = None):
 
   ui.on("ping", print_ping)
 
+
 def get_progress():
   progress = float(
     f"{(app.storage.user['stage_idx'] + 1) / app.storage.user['num_stages']:.2f}"
   )
   app.storage.user["stage_progress"] = progress
   return progress
+
 
 def user_data_file():
   return f"data/user_data_{app.storage.user['seed']}.msgpack"
@@ -363,5 +365,6 @@ async def read_all_records(filepath: str) -> List[Dict]:
 def read_all_records_sync(filepath: str) -> List[Dict]:
   """Synchronous version that reads all msgpack records from a file and returns them as a list."""
   return list(read_msgpack_records_sync(filepath))
+
 
 load_data = read_all_records_sync

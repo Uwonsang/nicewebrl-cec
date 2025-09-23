@@ -110,7 +110,7 @@ class Experiment(Container):
     super().__post_init__()
     if self.name is None:
       self.name = f"experiment_{uuid.uuid4().hex[:8]}"
-    
+
     stage_idx = 0
     for idx, block in enumerate(self.blocks):
       block.unique_id = f"{idx}_{block.unique_id}"
@@ -232,6 +232,11 @@ class Experiment(Container):
   def not_finished(self):
     block_idx = self.get_block_idx()
     return block_idx < len(self.blocks)
+
+  def finished(self):
+    block_idx = self.get_block_idx()
+    finished = app.storage.user.get("experiment_finished", False)
+    return block_idx >= len(self.blocks) or finished
 
   def force_finish(self):
     app.storage.user["stage_idx"] = self.num_stages

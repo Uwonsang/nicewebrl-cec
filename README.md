@@ -1,15 +1,16 @@
-# NiceWebRL: a Python library for human subject experiments with reinforcement learning environments
+# NiceWebRL
 
-
+This repository is the official implementation of [NiceWebRL: a Python library for human subject experiments with reinforcement learning environments](https://arxiv.org/pdf/2508.15693)
 
 **Table of Contents**
 
-- [NiceWebRL: a Python library for human subject experiments with reinforcement learning environments](#nicewebrl-a-python-library-for-human-subject-experiments-with-reinforcement-learning-environments)
-  - [Install](#install)
-  - [Working Examples](#working-examples)
-    - [Paper case studies](#paper-case-studies)
-    - [More examples](#more-examples)
-  - [Other Jax environments compatible with NiceWebRL](#other-jax-environments-compatible-with-nicewebrl)
+- [Install](#install)
+- [Working Examples](#working-examples)
+  - [Paper case studies](#paper-case-studies)
+  - [More examples](#more-examples)
+- [Other Jax environments compatible with NiceWebRL](#other-jax-environments-compatible-with-nicewebrl)
+- [Papers that have used NiceWebRL](#papers-that-have-used-nicewebrl)
+- [Citation](#citation)
 
 
 <img src="assets/human-ai-comparisons.png" alt="Comparison Image" style="width: 100%; max-width: 800px;">
@@ -270,5 +271,24 @@ When targetting normative solutions, one may want to study algorithms asymptotic
     </tr>
   </tbody>
 </table>
+
+# Papers that have used NiceWebRL
+
+* [Preemptive Solving of Future Problems: Multitask Preplay in Humans and Machines](https://arxiv.org/abs/2507.05561)
+* [Cross-environment Cooperation Enables Zero-shot Multi-agent Coordination](https://arxiv.org/abs/2504.12714)
+* [Unsupervised Partner Design Enables Robust Ad-hoc Teamwork](https://arxiv.org/pdf/2508.06336)
+
+
+# Citation
+If you use NiceWebRL in your work please cite it as follows:
+
+```
+@article{carvalho2025nicewebrl,
+  title={NiceWebRL: a Python library for human subject experiments with reinforcement learning environments},
+  author={Carvalho, Wilka and Goddla, Vikram and Sinha, Ishaan and Shin, Hoon and Jha, Kunal},
+  journal={arXiv preprint arXiv:2508.15693},
+  year={2025}
+}
+```
 
 [![Star History Chart](https://api.star-history.com/svg?repos=KempnerInstitute/nicewebrl&type=Date)](https://star-history.com/#KempnerInstitute/nicewebrl&Date)
