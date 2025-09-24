@@ -1,5 +1,5 @@
 from nicegui import app
-from typing import List, Union
+from typing import List, Union, Dict
 import dataclasses
 import uuid
 import jax.numpy as jnp
@@ -14,95 +14,10 @@ from nicewebrl.utils import get_user_lock, get_progress
 logger = get_logger(__name__)
 
 
-@dataclasses.dataclass
-class SimpleExperiment(Container):
-  stages: List[Stage] = dataclasses.field(default_factory=list)
-  randomize: Union[bool, List[bool]] = False
-  name: str = None
-
-  def __post_init__(self):
-    super().__post_init__()
-    if self.name is None:
-      self.name = f"experiment_{uuid.uuid4().hex[:8]}"
-    if isinstance(self.randomize, bool):
-      self.randomize = [self.randomize] * len(self.stages)
-
-    for idx, stage in enumerate(self.stages):
-      stage.unique_id = f"{idx}_{stage.unique_id}"
-
-  @property
-  def num_stages(self):
-    return len(self.stages)
-
-  async def initialize(self):
-    app.storage.user["stage_idx"] = app.storage.user.get("stage_idx", 0)
-    app.storage.user["stage_name"] = "undefined"
-    app.storage.user["num_stages"] = self.num_stages
-    stage_order = await self.get_stage_order()
-    stage_names_in_order = [self.stages[i].name for i in stage_order]
-    logger.info(f"Stage order: {stage_names_in_order}")
-
-  async def get_stage_order(self):
-    if not self.randomize:
-      return list(range(len(self.stages)))
-    stage_order = self.get_user_data("stage_order")
-    if stage_order is not None:
-      return stage_order
-
-    indices = jnp.arange(len(self.stages))
-    mask = jnp.array(self.randomize)
-
-    # Get randomizable indices
-    random_indices = indices[mask]
-
-    # Permute the randomizable indices
-    rng_key = new_rng()
-    rng_key, subkey = jax.random.split(rng_key)
-    random_indices = jax.random.permutation(subkey, random_indices)
-
-    # Combine back together
-    permuted = indices.at[mask].set(random_indices)
-
-    stage_order = [int(i) for i in permuted]
-    await self.set_user_data(stage_order=stage_order)
-    return stage_order
-
-  def get_experiment_stage_idx(self):
-    stage_idx = app.storage.user.get("stage_idx", None)
-    if stage_idx is None:
-      stage_idx = 0
-      app.storage.user["stage_idx"] = stage_idx
-    return stage_idx
-
-  async def get_stage(self):
-    stage_idx = self.get_experiment_stage_idx()
-    stage: Stage = self.stages[stage_idx]
-    app.storage.user["stage_name"] = stage.name
-    return stage
-
-  async def advance_stage(self):
-    # advance experiment stage idx
-    stage_idx = self.get_experiment_stage_idx()
-    async with get_user_lock():
-      app.storage.user["stage_idx"] = stage_idx + 1
-    get_progress()
-
-  def not_finished(self):
-    stage_idx = self.get_experiment_stage_idx()
-    return stage_idx < len(self.stages)
-
-  def finished(self):
-    stage_idx = self.get_experiment_stage_idx()
-    finished = app.storage.user.get("experiment_finished", False)
-    return stage_idx >= len(self.stages) or finished
-
-  def force_finish(self):
-    app.storage.user["stage_idx"] = self.num_stages
-
 
 @dataclasses.dataclass
 class Experiment(Container):
-  blocks: List[Block] = dataclasses.field(default_factory=list)
+  blocks: List[Union[Block, Stage]] = dataclasses.field(default_factory=list)
   randomize: Union[bool, List[bool]] = False
   name: str = None
 
@@ -110,6 +25,22 @@ class Experiment(Container):
     super().__post_init__()
     if self.name is None:
       self.name = f"experiment_{uuid.uuid4().hex[:8]}"
+
+    # Convert any Stage objects to single-member Blocks
+    converted_blocks = []
+    for item in self.blocks:
+      if isinstance(item, Stage):
+        # Create a Block with this single stage
+        block = Block(
+          stages=[item],
+          name=f"auto_block_{item.name}",
+          randomize=False
+        )
+        converted_blocks.append(block)
+      else:
+        converted_blocks.append(item)
+
+    self.blocks = converted_blocks
 
     stage_idx = 0
     for idx, block in enumerate(self.blocks):
@@ -241,3 +172,18 @@ class Experiment(Container):
   def force_finish(self):
     app.storage.user["stage_idx"] = self.num_stages
     app.storage.user["block_idx"] = self.num_blocks
+
+
+SimpleExperiment = Experiment
+
+
+@dataclasses.dataclass
+class ExperimentSet(Container):
+  experiments: Dict[str, Experiment] = dataclasses.field(default_factory=list)
+
+  def set_experiment(self, experiment: str):
+    app.storage.user['experiment'] = experiment
+
+  def get_experiment(self):
+    name = app.storage.user['experiment']
+    return self.experiments[name]

@@ -53,6 +53,7 @@ from nicewebrl.stages import broadcast_metadata
 
 from nicewebrl.experiment import Experiment
 from nicewebrl.experiment import SimpleExperiment
+from nicewebrl.experiment import ExperimentSet
 from nicewebrl.container import Container
 
 from nicewebrl.logging import get_logger
