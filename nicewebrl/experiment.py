@@ -144,11 +144,11 @@ class Experiment(Container):
     return stage
 
   async def advance(self):
-    self.advance_stage()
+    await self.advance_stage()
 
     block: Block = await self.get_block()
-    if block.finished():
-      self.advance_block()
+    if await block.finished():
+      await self.advance_block()
 
   async def advance_block(self):
     block_idx = self.get_block_idx()
