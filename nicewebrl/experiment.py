@@ -82,7 +82,6 @@ class Experiment(Container):
     if block_order is not None:
       return block_order
 
-    import ipdb; ipdb.set_trace()
     indices = jnp.arange(len(self.blocks))
     mask = jnp.array(self.randomize)
 
