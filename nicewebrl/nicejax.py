@@ -236,7 +236,7 @@ def try_to_get_actions(env):
 
 
 class JaxWebEnv:
-  def __init__(self, env, actions=None):
+  def __init__(self, env, actions=None, render_fn: Optional[RenderFn] = None):
     """The main purpose of this class is to precompile jax functions before experiment starts."""
     self.env = env
     assert hasattr(env, "reset"), "env needs reset function"
@@ -254,12 +254,17 @@ class JaxWebEnv:
 
     self.reset = jax.jit(env.reset)
     self.next_steps = jax.jit(next_steps)
+    self.render_fn = jax.jit(render_fn)
 
   def precompile(self, dummy_env_params: Optional[struct.PyTreeNode] = None) -> None:
     """Call this function to pre-compile jax functions before experiment starts."""
     print("Compiling environment reset and step functions.")
     start = time.time()
     dummy_rng = jax.random.PRNGKey(0)
+    self.render_fn = self.render_fn.lower(
+      self.reset(dummy_rng, dummy_env_params)
+    ).compile()
+    print(f"\trender time: {time.time() - start}")
     self.reset = self.reset.lower(dummy_rng, dummy_env_params).compile()
     print(f"\treset time: {time.time() - start}")
     start = time.time()

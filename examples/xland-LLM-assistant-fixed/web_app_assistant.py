@@ -13,17 +13,18 @@ from nicewebrl import TimeStep
 import time
 import json
 from upload_google_data import save_to_gcs_with_retries, GOOGLE_CREDENTIALS
-from experiment_structure import experiment  
+from experiment_structure import experiment
 
 # --- Data saving toggles (module-level constants) ---
-KEEP_LOCAL_COPIES = True                   # keep .msgpack and metadata locally
-ENABLE_GCS_UPLOAD = False                  # turn on only when you actually want to push to GCS
-GCS_KEY_PATH = "./google-cloud-key.json"   # path to your creds file (if using GCS)
+KEEP_LOCAL_COPIES = True  # keep .msgpack and metadata locally
+ENABLE_GCS_UPLOAD = False  # turn on only when you actually want to push to GCS
+GCS_KEY_PATH = "./google-cloud-key.json"  # path to your creds file (if using GCS)
 
 DATA_DIR = "data"
 DATABASE_FILE = "db.sqlite"
 
 _user_locks = {}
+
 
 def get_user_lock():
   user_seed = app.storage.user["seed"]
@@ -31,23 +32,25 @@ def get_user_lock():
     _user_locks[user_seed] = Lock()
   return _user_locks[user_seed]
 
+
 # --------------------------------------------------------------------
 # Key handling: container-scoped + active_container guard
 # --------------------------------------------------------------------
 from types import SimpleNamespace
 
+
 async def global_handle_key_press(e, container):
-    logger.info("global_handle_key_press")
-    if experiment.finished():
-        logger.info("Experiment finished")
-        return
+  logger.info("global_handle_key_press")
+  if experiment.finished():
+    logger.info("Experiment finished")
+    return
 
-    stage = await experiment.get_stage()
-    if stage.get_user_data("finished", False):
-        return
+  stage = await experiment.get_stage()
+  if stage.get_user_data("finished", False):
+    return
 
-    # Hard guard: ignore all keys while the user is typing anywhere.
-    is_typing = await ui.run_javascript("""
+  # Hard guard: ignore all keys while the user is typing anywhere.
+  is_typing = await ui.run_javascript("""
       (function(){
         const el = document.activeElement;
         if (!el) return false;
@@ -56,44 +59,49 @@ async def global_handle_key_press(e, container):
         return !!closest;
       })()
     """)
-    if is_typing:
-        return
+  if is_typing:
+    return
 
-    # Optional guard: if the focused element is exactly the LLM prompt box, ignore.
-    active_id = await ui.run_javascript('document.activeElement ? document.activeElement.id : ""')
-    prompt_box_id = stage.get_user_data("prompt_box_id")
-    if prompt_box_id and str(active_id) == str(prompt_box_id):
-        return
+  # Optional guard: if the focused element is exactly the LLM prompt box, ignore.
+  active_id = await ui.run_javascript(
+    'document.activeElement ? document.activeElement.id : ""'
+  )
+  prompt_box_id = stage.get_user_data("prompt_box_id")
+  if prompt_box_id and str(active_id) == str(prompt_box_id):
+    return
 
-    # Only pass keys to the env when the env is the active container.
-    if stage.get_user_data("active_container") != "env":
-        return
+  # Only pass keys to the env when the env is the active container.
+  if stage.get_user_data("active_container") != "env":
+    return
 
-    # --- Attach timestamps so they get saved with the action ---
-    try:
-        image_ts = await ui.run_javascript(
-            "window.imageSeenTime ? new Date(window.imageSeenTime).toISOString() : null"
-        )
-    except Exception:
-        image_ts = None
+  # --- Attach timestamps so they get saved with the action ---
+  try:
+    image_ts = await ui.run_javascript(
+      "window.imageSeenTime ? new Date(window.imageSeenTime).toISOString() : null"
+    )
+  except Exception:
+    image_ts = None
 
-    try:
-        key_ts = await ui.run_javascript("new Date().toISOString()")
-    except Exception:
-        key_ts = None
+  try:
+    key_ts = await ui.run_javascript("new Date().toISOString()")
+  except Exception:
+    key_ts = None
 
-    # Wrap the event with augmented args (don’t mutate NiceGUI’s event in place)
-    base_args = dict(getattr(e, "args", {}) or {})
-    base_args.setdefault("key", getattr(getattr(e, "args", None), "get", lambda *_: None)("key"))
-    base_args["imageSeenTime"] = image_ts
-    base_args["keydownTime"] = key_ts
-    wrapped_event = SimpleNamespace(args=base_args)
+  # Wrap the event with augmented args (don’t mutate NiceGUI’s event in place)
+  base_args = dict(getattr(e, "args", {}) or {})
+  base_args.setdefault(
+    "key", getattr(getattr(e, "args", None), "get", lambda *_: None)("key")
+  )
+  base_args["imageSeenTime"] = image_ts
+  base_args["keydownTime"] = key_ts
+  wrapped_event = SimpleNamespace(args=base_args)
 
-    await stage.handle_key_press(wrapped_event, container)
+  await stage.handle_key_press(wrapped_event, container)
 
-    local_handle_key_press = stage.get_user_data("local_handle_key_press")
-    if local_handle_key_press is not None:
-        await local_handle_key_press()
+  local_handle_key_press = stage.get_user_data("local_handle_key_press")
+  if local_handle_key_press is not None:
+    await local_handle_key_press()
+
 
 # --------------------------------------------------------------------
 # Setup logging & local data dir
@@ -103,6 +111,7 @@ logger = get_logger("main")
 
 if not os.path.exists(DATA_DIR):
   os.mkdir(DATA_DIR)
+
 
 # --------------------------------------------------------------------
 # DB lifecycle
@@ -114,14 +123,17 @@ async def init_db() -> None:
   )
   await Tortoise.generate_schemas()
 
+
 async def close_db() -> None:
   await Tortoise.close_connections()
+
 
 app.on_startup(init_db)
 app.on_shutdown(close_db)
 
+
 # --------------------------------------------------------------------
-# Minimal consent + demographics 
+# Minimal consent + demographics
 # --------------------------------------------------------------------
 async def make_consent_form(container):
   consent_given = asyncio.Event()
@@ -136,6 +148,7 @@ async def make_consent_form(container):
 
     ui.checkbox("I agree to participate.", on_change=on_change)
   await consent_given.wait()
+
 
 async def collect_demographic_info(container):
   nicewebrl.clear_element(container)
@@ -164,6 +177,7 @@ async def collect_demographic_info(container):
     button = ui.button("Submit", on_click=submit)
     await button.clicked()
 
+
 # --------------------------------------------------------------------
 # Experiment flow (containers for stage/meta only; chat is inside env stages)
 # --------------------------------------------------------------------
@@ -174,9 +188,17 @@ async def start_experiment(meta_container, stage_container):
     app.storage.user["experiment_started"] = True
 
   # Container-scoped key handling; make sure container is focusable
-  stage_container.props('tabindex=0')
-  stage_container.on('keydown', lambda e, sc=stage_container: global_handle_key_press(e, sc))
-  ui.timer(0.01, lambda sc=stage_container: ui.run_javascript(f'document.getElementById("{sc.id}").focus()'), once=True)
+  stage_container.props("tabindex=0")
+  stage_container.on(
+    "keydown", lambda e, sc=stage_container: global_handle_key_press(e, sc)
+  )
+  ui.timer(
+    0.01,
+    lambda sc=stage_container: ui.run_javascript(
+      f'document.getElementById("{sc.id}").focus()'
+    ),
+    once=True,
+  )
 
   logger.info("Starting experiment")
 
@@ -188,6 +210,7 @@ async def start_experiment(meta_container, stage_container):
 
   await finish_experiment(meta_container)
 
+
 async def finish_experiment(container):
   nicewebrl.clear_element(container)
   with container:
@@ -198,7 +221,9 @@ async def finish_experiment(container):
     status_container = None
     with container:
       nicewebrl.clear_element(container)
-      ui.markdown("## Your data is being saved. Please do not close or refresh the page.")
+      ui.markdown(
+        "## Your data is being saved. Please do not close or refresh the page."
+      )
       status_container = ui.markdown("Saving local files...")
 
     try:
@@ -216,7 +241,9 @@ async def finish_experiment(container):
           continue
         except Exception as e:
           logger.error(f"Error during save: {e}")
-          status_container.content = "⚠️ Error saving data. Please contact the experimenter."
+          status_container.content = (
+            "⚠️ Error saving data. Please contact the experimenter."
+          )
           raise
 
       elapsed_seconds = int(time.time() - start_time)
@@ -248,6 +275,7 @@ async def finish_experiment(container):
     ui.markdown("### 'carvalho.assistants 3'")
     ui.markdown("#### You may close the browser")
 
+
 async def save_data(feedback=None, **kwargs):
   user_data_file = nicewebrl.user_data_file()
   user_metadata_file = nicewebrl.user_metadata_file()
@@ -261,6 +289,7 @@ async def save_data(feedback=None, **kwargs):
     **kwargs,
   )
   import json, os
+
   with open(user_metadata_file, "w") as f:
     json.dump(metadata, f)
 
@@ -270,6 +299,7 @@ async def save_data(feedback=None, **kwargs):
   try:
     if ENABLE_GCS_UPLOAD:
       from upload_google_data import save_to_gcs_with_retries, GOOGLE_CREDENTIALS
+
       # Require both a non-empty GOOGLE_CREDENTIALS and an existing key file path
       key_ok = isinstance(GOOGLE_CREDENTIALS, str) and os.path.exists(GCS_KEY_PATH)
       if key_ok:
@@ -290,6 +320,7 @@ async def save_data(feedback=None, **kwargs):
   # Clean up DB records (optional; doesn’t touch the msgpack)
   try:
     from nicewebrl.stages import StageStateModel
+
     logger.info(f"Deleting DB stage rows for user {app.storage.browser.get('id')}")
     await StageStateModel.filter(session_id=app.storage.browser.get("id")).delete()
   except Exception as e:
@@ -305,6 +336,7 @@ async def save_data(feedback=None, **kwargs):
         logger.warning(f"Failed to delete local file {local_file}: {e}")
   else:
     logger.info(f"Keeping local files: {files_to_save}")
+
 
 async def run_stage(stage, container):
   stage_over_event = asyncio.Event()
@@ -341,53 +373,64 @@ async def run_stage(stage, container):
 
   await stage_over_event.wait()
 
+
 # --------------------------------------------------------------------
 # Main page: minimal containers only; chat UI lives inside env stages
 # --------------------------------------------------------------------
 @ui.page("/")
 async def index(request: Request):
-    nicewebrl.initialize_user(request=request)
-    await experiment.initialize()
+  nicewebrl.initialize_user(request=request)
+  await experiment.initialize()
 
-    basic_javascript_file = nicewebrl.basic_javascript_file()
-    with open(basic_javascript_file) as f:
-        ui.add_body_html("<script>" + f.read() + "</script>")
+  basic_javascript_file = nicewebrl.basic_javascript_file()
+  with open(basic_javascript_file) as f:
+    ui.add_body_html("<script>" + f.read() + "</script>")
 
-    card = (
-        ui.card(align_items=["center"])
-        .classes("fixed-center")
-        .style(
-            "width: 80vw; max-height: 90vh; overflow: auto; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding: 1rem;"
-        )
+  card = (
+    ui.card(align_items=["center"])
+    .classes("fixed-center")
+    .style(
+      "width: 80vw; max-height: 90vh; overflow: auto; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding: 1rem;"
     )
+  )
 
-    with card:
-        meta_container = ui.column()
-        with meta_container.style("align-items: center;"):
-            display_container = ui.row()
-            with display_container.style("align-items: center;"):
-                stage_container = ui.column()
-                # optional heartbeat/timer
-                ui.timer(interval=10, callback=lambda: None)
+  with card:
+    meta_container = ui.column()
+    with meta_container.style("align-items: center;"):
+      display_container = ui.row()
+      with display_container.style("align-items: center;"):
+        stage_container = ui.column()
+        # optional heartbeat/timer
+        ui.timer(interval=10, callback=lambda: None)
 
-            footer_container = ui.row()
+      footer_container = ui.row()
 
-        with meta_container.style("align-items: center;"):
-            await footer(footer_container)
-            with display_container.style("align-items: center;"):
-                await start_experiment(display_container, stage_container)
+    with meta_container.style("align-items: center;"):
+      await footer(footer_container)
+      with display_container.style("align-items: center;"):
+        await start_experiment(display_container, stage_container)
+
 
 async def footer(footer_container):
   with footer_container:
     with ui.row():
       ui.label().bind_text_from(app.storage.user, "user_id", lambda v: f"user id: {v}.")
+
       def text_display(v):
         stage_idx = max(experiment.num_stages, int(v) + 1)
         return f"stage: {stage_idx}/{experiment.num_stages}."
+
       ui.label().bind_text_from(app.storage.user, "stage_idx", text_display)
-      ui.label().bind_text_from(app.storage.user, "session_duration", lambda v: f"minutes passed: {int(v)}.")
-    ui.linear_progress(value=nicewebrl.get_progress()).bind_value_from(app.storage.user, "stage_progress")
-    ui.button("Toggle fullscreen", icon="fullscreen", on_click=nicewebrl.utils.toggle_fullscreen).props("flat")
+      ui.label().bind_text_from(
+        app.storage.user, "session_duration", lambda v: f"minutes passed: {int(v)}."
+      )
+    ui.linear_progress(value=nicewebrl.get_progress()).bind_value_from(
+      app.storage.user, "stage_progress"
+    )
+    ui.button(
+      "Toggle fullscreen", icon="fullscreen", on_click=nicewebrl.utils.toggle_fullscreen
+    ).props("flat")
+
 
 ui.run(
   storage_secret="private key to secure the browser session cookie",
