@@ -33,7 +33,7 @@ class Experiment(Container):
         # Create a Block with this single stage
         block = Block(
           stages=[item],
-          name=f"auto_block_{item.name}",
+          name=item.name if item.name else f"auto_block_{item.unique_id}",
           randomize=False
         )
         converted_blocks.append(block)
@@ -82,6 +82,7 @@ class Experiment(Container):
     if block_order is not None:
       return block_order
 
+    import ipdb; ipdb.set_trace()
     indices = jnp.arange(len(self.blocks))
     mask = jnp.array(self.randomize)
 
@@ -143,6 +144,13 @@ class Experiment(Container):
     app.storage.user["stage_name"] = stage.name
     return stage
 
+  async def advance(self):
+    self.advance_stage()
+
+    block: Block = await self.get_block()
+    if block.finished():
+      self.advance_block()
+
   async def advance_block(self):
     block_idx = self.get_block_idx()
     async with get_user_lock():
@@ -187,3 +195,7 @@ class ExperimentSet(Container):
   def get_experiment(self):
     name = app.storage.user['experiment']
     return self.experiments[name]
+
+  # enable dict-like access
+  def __getitem__(self, key):
+    return self.experiments[key]

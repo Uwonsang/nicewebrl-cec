@@ -986,18 +986,6 @@ class Block(Container):
     for stage in self.stages:
       stage.metadata["block_metadata"] = self.metadata
 
-  # def get_block_data(self):
-  #  return app.storage.user.get(f"'{self.name}'_data", {})
-
-  # def get_user_data(self, key, value=None):
-  #  return self.get_block_data().get(key, value)
-
-  # async def set_user_data(self, **kwargs):
-  #  block_data = self.get_block_data()
-  #  block_data.update(kwargs)
-  #  async with self._lock:
-  #    app.storage.user[f"'{self.name}'_data"] = block_data
-
   async def get_block_stage_idx(self):
     stage_idx = self.get_user_data("stage_idx")
     if stage_idx is None:
@@ -1050,6 +1038,9 @@ class Block(Container):
     stage_idx = await self.get_block_stage_idx()
     return stage_idx < len(self.stages)
 
+  async def finished(self):
+    stage_idx = await self.get_block_stage_idx()
+    return stage_idx >= len(self.stages) 
 
 def broadcast_metadata(blocks: List[Block]) -> List[Stage]:
   """This function assigns the block metadata to each stage."""
