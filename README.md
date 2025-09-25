@@ -279,16 +279,6 @@ When targetting normative solutions, one may want to study algorithms asymptotic
 * [Unsupervised Partner Design Enables Robust Ad-hoc Teamwork](https://arxiv.org/pdf/2508.06336)
 
 
-# Citation
-If you use NiceWebRL in your work please cite it as follows:
 
-```
-@article{carvalho2025nicewebrl,
-  title={NiceWebRL: a Python library for human subject experiments with reinforcement learning environments},
-  author={Carvalho, Wilka and Goddla, Vikram and Sinha, Ishaan and Shin, Hoon and Jha, Kunal},
-  journal={arXiv preprint arXiv:2508.15693},
-  year={2025}
-}
-```
 
 [![Star History Chart](https://api.star-history.com/svg?repos=KempnerInstitute/nicewebrl&type=Date)](https://star-history.com/#KempnerInstitute/nicewebrl&Date)
