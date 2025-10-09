@@ -574,4 +574,4 @@ def generate_html(csv_file, output_file):
     print(f"Generated {output_file}")
 
 if __name__ == '__main__':
-    generate_html('environments.csv', 'environments.html')
+    generate_html('environments.csv', 'index.html')

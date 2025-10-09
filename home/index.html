@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NiceWebRL - Environments</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #414545;
+            background: #fcfafa;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 16px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 48px 16px 0 16px;
+            background: transparent;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            color: #414545;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            color: #414545;
+            font-weight: 400;
+        }
+
+        .environments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 32px;
+            background: transparent;
+            padding: 0;
+        }
+
+        .environment-card {
+            background: transparent;
+            border-radius: 0;
+            overflow: visible;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: none;
+        }
+
+        .environment-card:hover {
+            transform: translateY(-4px);
+            cursor: pointer;
+        }
+
+        .domain-badge {
+            padding: 0 0 8px 0;
+            background: transparent;
+            color: #414545;
+            font-size: 1.1em;
+            font-weight: 700;
+            text-align: center;
+            flex-shrink: 0;
+            letter-spacing: 0.3px;
+        }
+
+        .image-container {
+            height: 250px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .environment-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .environment-name {
+            padding: 0 0 12px 0;
+            font-weight: 500;
+            font-size: 0.85em;
+            color: #414545;
+            text-align: center;
+            background: transparent;
+        }
+
+        .tag-filter-section {
+            background: transparent;
+            padding: 0 0 32px 0;
+            margin-bottom: 32px;
+        }
+
+        .tag-filter-section h3 {
+            margin-bottom: 16px;
+            color: #414545;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .tag-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tag-filter {
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            font-weight: 500;
+            opacity: 0.6;
+            border: none;
+        }
+
+        .tag-filter:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
+        }
+
+        .tag-filter.active {
+            opacity: 1;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .environment-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px 0;
+            background: transparent;
+            min-height: 40px;
+            align-items: center;
+            flex-shrink: 0;
+            justify-content: center;
+        }
+
+        .tag {
+            padding: 6px 12px;
+            background: #E8E8E4;
+            color: #414545;
+            border-radius: 16px;
+            font-size: 0.75em;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tag:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+
+        .tag-single-task {
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .tag-single-agent {
+            background: #F3E5F5;
+            color: #6A1B9A;
+        }
+
+        .tag-multi-task {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .tag-multi-agent {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+
+        .tag-3d-robotics {
+            background: #FCE4EC;
+            color: #C2185B;
+        }
+
+        .tag-logic {
+            background: #E0F2F1;
+            color: #00695C;
+        }
+
+        .tag-packing {
+            background: #FFF9C4;
+            color: #F57F17;
+        }
+
+        .tag-routing {
+            background: #E1F5FE;
+            color: #01579B;
+        }
+
+        .tag-planning {
+            background: #F1F8E9;
+            color: #558B2F;
+        }
+
+        .tag-swarms {
+            background: #FBE9E7;
+            color: #BF360C;
+        }
+
+        .tag-open-ended {
+            background: #EDE7F6;
+            color: #4527A0;
+        }
+
+        .tag-filter.tag-single-task {
+            background: #E8E8E4;
+            color: #1565C0;
+        }
+
+        .tag-filter.tag-single-agent {
+            background: #E8E8E4;
+            color: #6A1B9A;
+        }
+
+        .tag-filter.tag-multi-task {
+            background: #E8E8E4;
+            color: #2E7D32;
+        }
+
+        .tag-filter.tag-multi-agent {
+            background: #E8E8E4;
+            color: #E65100;
+        }
+
+        .tag-filter.tag-3d-robotics {
+            background: #E8E8E4;
+            color: #C2185B;
+        }
+
+        .tag-filter.tag-logic {
+            background: #E8E8E4;
+            color: #00695C;
+        }
+
+        .tag-filter.tag-packing {
+            background: #E8E8E4;
+            color: #F57F17;
+        }
+
+        .tag-filter.tag-routing {
+            background: #E8E8E4;
+            color: #01579B;
+        }
+
+        .tag-filter.tag-planning {
+            background: #E8E8E4;
+            color: #558B2F;
+        }
+
+        .tag-filter.tag-swarms {
+            background: #E8E8E4;
+            color: #BF360C;
+        }
+
+        .tag-filter.tag-open-ended {
+            background: #E8E8E4;
+            color: #4527A0;
+        }
+
+        .environment-card.hidden {
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 48px;
+            padding: 16px;
+            color: #414545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NiceWebRL</h1>
+            <p class="subtitle">A Python library for quickly making human subject experiments with machine learning models and environments.</p>
+        </header>
+
+        <div class="tag-filter-section">
+            <h3>Filter by Tags</h3>
+            <div class="tag-filters">
+                <div class="tag-filter tag-3d-robotics" onclick="toggleTag('3D robotics')">3D robotics</div>
+                <div class="tag-filter tag-logic" onclick="toggleTag('logic')">logic</div>
+                <div class="tag-filter tag-multi-agent" onclick="toggleTag('multi-agent')">multi-agent</div>
+                <div class="tag-filter tag-multi-task" onclick="toggleTag('multi-task')">multi-task</div>
+                <div class="tag-filter tag-open-ended" onclick="toggleTag('open-ended')">open-ended</div>
+                <div class="tag-filter tag-packing" onclick="toggleTag('packing')">packing</div>
+                <div class="tag-filter tag-planning" onclick="toggleTag('planning')">planning</div>
+                <div class="tag-filter tag-routing" onclick="toggleTag('routing')">routing</div>
+                <div class="tag-filter tag-single-agent" onclick="toggleTag('single-agent')">single-agent</div>
+                <div class="tag-filter tag-single-task" onclick="toggleTag('single-task')">single-task</div>
+                <div class="tag-filter tag-swarms" onclick="toggleTag('swarms')">swarms</div>
+            </div>
+        </div>
+
+        <div class="environments-grid">
+            <a href="https://github.com/MichaelTMatthews/Craftax" target="_blank" class="environment-card" data-tags="single-task,single-agent,open-ended">
+                <div class="domain-badge">Craftax</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/MichaelTMatthews/Craftax/main/images/building.gif" alt="" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-single-task" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-task');">single-task</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                    <span class="tag tag-open-ended" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('open-ended');">open-ended</span>
+                </div>
+            </a>
+            <div class="environment-card" data-tags="multi-task,single-agent,open-ended">
+                <div class="domain-badge">Kinetix</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/KempnerInstitute/nicewebrl/main/assets/kinetix.gif" alt="" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-multi-task" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('multi-task');">multi-task</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                    <span class="tag tag-open-ended" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('open-ended');">open-ended</span>
+                </div>
+            </div>
+            <div class="environment-card" data-tags="multi-task,single-agent">
+                <div class="domain-badge">Navix (Minigrid)</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/KempnerInstitute/nicewebrl/main/assets/navix.gif" alt="" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-multi-task" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('multi-task');">multi-task</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </div>
+            <div class="environment-card" data-tags="multi-task,single-agent">
+                <div class="domain-badge">XLand Minigrid</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/KempnerInstitute/nicewebrl/main/assets/xland_minigrid.gif" alt="" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-multi-task" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('multi-task');">multi-task</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </div>
+            <a href="https://github.com/FLAIROx/JaxMARL" target="_blank" class="environment-card" data-tags="multi-agent">
+                <div class="domain-badge">JaxMARL</div>
+                <div class="environment-name">Cramped Room</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/FLAIROx/JaxMARL/main/docs/imgs/cramped_room.gif" alt="cramped_room" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-multi-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('multi-agent');">multi-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/FLAIROx/JaxMARL" target="_blank" class="environment-card" data-tags="multi-agent,3D robotics">
+                <div class="domain-badge">JaxMARL</div>
+                <div class="environment-name">Multi-agent brax</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/FLAIROx/JaxMARL/main/docs/imgs/mabrax.png" alt="multi-agent brax" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-multi-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('multi-agent');">multi-agent</span>
+                    <span class="tag tag-3d-robotics" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('3D robotics');">3D robotics</span>
+                </div>
+            </a>
+            <a href="https://github.com/FLAIROx/JaxMARL" target="_blank" class="environment-card" data-tags="multi-agent">
+                <div class="domain-badge">JaxMARL</div>
+                <div class="environment-name">Storm</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/FLAIROx/JaxMARL/main/docs/imgs/storm.gif" alt="storm" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-multi-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('multi-agent');">multi-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/FLAIROx/JaxMARL" target="_blank" class="environment-card" data-tags="multi-agent">
+                <div class="domain-badge">JaxMARL</div>
+                <div class="environment-name">Coin Game</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/FLAIROx/JaxMARL/refs/heads/main/docs/imgs/coin_game.png" alt="coin_game" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-multi-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('multi-agent');">multi-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/FLAIROx/JaxMARL" target="_blank" class="environment-card" data-tags="multi-agent">
+                <div class="domain-badge">JaxMARL</div>
+                <div class="environment-name">Mpe</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/FLAIROx/JaxMARL/main/docs/imgs/qmix_MPE_simple_tag_v3.gif" alt="MPE" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-multi-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('multi-agent');">multi-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/FLAIROx/JaxMARL" target="_blank" class="environment-card" data-tags="multi-agent">
+                <div class="domain-badge">JaxMARL</div>
+                <div class="environment-name">Jaxnav</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/FLAIROx/JaxMARL/refs/heads/main/docs/imgs/jaxnav-ma.gif" alt="JaxNav" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-multi-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('multi-agent');">multi-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/FLAIROx/JaxMARL" target="_blank" class="environment-card" data-tags="multi-agent">
+                <div class="domain-badge">JaxMARL</div>
+                <div class="environment-name">Smax</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/FLAIROx/JaxMARL/main/docs/imgs/smax.gif?raw=true" alt="smax" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-multi-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('multi-agent');">multi-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/MichalBortkiewicz/JaxGCRL?tab=readme-ov-file" target="_blank" class="environment-card" data-tags="3D robotics">
+                <div class="domain-badge">Jax Goal-conditioned RLL</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/MichalBortkiewicz/JaxGCRL/master/imgs/push.gif" alt="" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-3d-robotics" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('3D robotics');">3D robotics</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">2048</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/2048_light.gif" alt="2048" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Animal shogi</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/animal_shogi_light.gif" alt="Animal Shogi" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Backgammon</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/backgammon_light.gif" alt="Backgammon" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Bridge bidding</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/bridge_bidding_light.gif" alt="Bridge bidding" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Chess</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/chess_light.gif" alt="Chess" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Connect four</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/connect_four_light.gif" alt="Connect Four" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Gardner chess</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/gardner_chess_light.gif" alt="Gardner Chess" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Go</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/go-19x19_light.gif" alt="Go" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Hex</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/hex_light.gif" alt="Hex" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Kuhn poker</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/kuhn_poker_light.gif" alt="Kuhn Poker" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Leduc hold'em</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/leduc_holdem_light.gif" alt="Leduc hold'em" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Othello</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/othello_light.gif" alt="Othello" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Shogi</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/shogi_light.gif" alt="Shogi" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Tic-tac-toe</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/tic_tac_toe_light.gif" alt="Tic-tac-toe" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Minatar/asterix</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/minatar-asterix.gif" alt="MinAtar/Asterix" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Minatar/breakout</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/minatar-breakout.gif" alt="MinAtar/Breakout" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Minatar/freeway</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/minatar-freeway.gif" alt="MinAtar/Freeway" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Minatar/seaquest</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/minatar-seaquest.gif" alt="MinAtar/Seaquest" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/sotetsuk/pgx" target="_blank" class="environment-card" data-tags="planning">
+                <div class="domain-badge">PgX</div>
+                <div class="environment-name">Minatar/spaceinvaders</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/sotetsuk/pgx/main/docs/assets/minatar-space_invaders.gif" alt="MinAtar/SpaceInvaders" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-planning" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('planning');">planning</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="packing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Binpack (3d binpacking problem)</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/bin_pack.gif" alt="BinPack (3D BinPacking Problem)" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-packing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('packing');">packing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="routing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Cleaner</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/cleaner.gif" alt="Cleaner" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-routing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('routing');">routing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="routing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Connector</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/connector.gif" alt="Connector" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-routing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('routing');">routing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="routing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Cvrp (capacitated vehicle routing problem)</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/cvrp.gif" alt="CVRP (Capacitated Vehicle Routing Problem)" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-routing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('routing');">routing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="packing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Flatpack (2d grid filling problem)</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/flat_pack.gif" alt="FlatPack (2D Grid Filling Problem)" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-packing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('packing');">packing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="logic,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Game2048</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/game_2048.gif" alt="Game2048" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-logic" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('logic');">logic</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="logic,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Graphcoloring</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/graph_coloring.gif" alt="GraphColoring" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-logic" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('logic');">logic</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="packing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Jobshop (job shop scheduling problem)</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/job_shop.gif" alt="JobShop (Job Shop Scheduling Problem)" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-packing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('packing');">packing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="packing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Knapsack</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/knapsack.gif" alt="Knapsack" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-packing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('packing');">packing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="routing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Maze</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/maze.gif" alt="Maze" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-routing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('routing');">routing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="logic,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Minesweeper</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/minesweeper.gif" alt="Minesweeper" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-logic" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('logic');">logic</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="routing,multi-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Mmst (multi minimum spanning tree problem)</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/mmst.gif" alt="MMST (Multi Minimum Spanning Tree Problem)" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-routing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('routing');">routing</span>
+                    <span class="tag tag-multi-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('multi-agent');">multi-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="routing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Multicvrp (multi-agent capacitated vehicle routing problem)</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/multi_cvrp.gif" alt="MultiCVRP (Multi-Agent Capacitated Vehicle Routing Problem)" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-routing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('routing');">routing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="routing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Pacman</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/pac_man.gif" alt="PacMan" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-routing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('routing');">routing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="routing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Robotwarehouse</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/robot_warehouse.gif" alt="RobotWarehouse" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-routing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('routing');">routing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="logic,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Rubikscube</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/rubiks_cube.gif" alt="RubiksCube" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-logic" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('logic');">logic</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="logic,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Slidingtilepuzzle</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/sliding_tile_puzzle.gif" alt="SlidingTilePuzzle" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-logic" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('logic');">logic</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="routing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Snake</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/snake.gif" alt="Snake" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-routing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('routing');">routing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="routing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Sokoban</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/sokoban.gif" alt="Sokoban" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-routing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('routing');">routing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="logic,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Sudoku</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/sudoku.gif" alt="Sudoku" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-logic" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('logic');">logic</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="packing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Tetris</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/tetris.gif" alt="Tetris" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-packing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('packing');">packing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="routing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Tsp (travelling salesman problem)</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/tsp.gif" alt="TSP (Travelling Salesman Problem)" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-routing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('routing');">routing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="routing,single-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Level-based foraging</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/lbf.gif" alt="Level-Based Foraging" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-routing" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('routing');">routing</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/instadeepai/jumanji" target="_blank" class="environment-card" data-tags="swarms,multi-agent">
+                <div class="domain-badge">Jumanji</div>
+                <div class="environment-name">Search and rescue</div>
+                <div class="image-container">
+                    <img src="https://raw.githubusercontent.com/instadeepai/jumanji/main/docs/env_anim/search_and_rescue.gif" alt="Search and Rescue" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-swarms" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('swarms');">swarms</span>
+                    <span class="tag tag-multi-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('multi-agent');">multi-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/google/brax" target="_blank" class="environment-card" data-tags="3D robotics,single-agent">
+                <div class="domain-badge">Brax</div>
+                <div class="environment-name">Humanoid</div>
+                <div class="image-container">
+                    <img src="https://github.com/google/brax/raw/main/docs/img/humanoid_v2.gif" alt="Humanoid" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-3d-robotics" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('3D robotics');">3D robotics</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/google/brax" target="_blank" class="environment-card" data-tags="3D robotics,single-agent">
+                <div class="domain-badge">Brax</div>
+                <div class="environment-name">Quadruped</div>
+                <div class="image-container">
+                    <img src="https://github.com/google/brax/raw/main/docs/img/a1.gif" alt="Quadruped" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-3d-robotics" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('3D robotics');">3D robotics</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/google/brax" target="_blank" class="environment-card" data-tags="3D robotics,single-agent">
+                <div class="domain-badge">Brax</div>
+                <div class="environment-name">Any</div>
+                <div class="image-container">
+                    <img src="https://github.com/google/brax/raw/main/docs/img/ant_v2.gif" alt="Any" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-3d-robotics" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('3D robotics');">3D robotics</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+            <a href="https://github.com/google/brax" target="_blank" class="environment-card" data-tags="3D robotics,single-agent">
+                <div class="domain-badge">Brax</div>
+                <div class="environment-name">Arm</div>
+                <div class="image-container">
+                    <img src="https://github.com/google/brax/raw/main/docs/img/ur5e.gif" alt="Arm" class="environment-image" onerror="this.parentElement.style.display='none'">
+                </div>
+                <div class="environment-tags">
+                    <span class="tag tag-3d-robotics" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('3D robotics');">3D robotics</span>
+                    <span class="tag tag-single-agent" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('single-agent');">single-agent</span>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        let activeTags = new Set();
+
+        function toggleTag(tag) {
+            const filterElement = event.target;
+
+            if (activeTags.has(tag)) {
+                activeTags.delete(tag);
+                filterElement.classList.remove('active');
+            } else {
+                activeTags.add(tag);
+                filterElement.classList.add('active');
+            }
+
+            filterEnvironments();
+        }
+
+        function toggleTagFromCard(tag) {
+            if (activeTags.has(tag)) {
+                activeTags.delete(tag);
+            } else {
+                activeTags.add(tag);
+            }
+
+            // Update filter button state
+            const filterButtons = document.querySelectorAll('.tag-filter');
+            filterButtons.forEach(btn => {
+                if (btn.textContent === tag) {
+                    if (activeTags.has(tag)) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+
+            filterEnvironments();
+        }
+
+        function filterEnvironments() {
+            const cards = document.querySelectorAll('.environment-card');
+
+            if (activeTags.size === 0) {
+                // Show all if no filters active
+                cards.forEach(card => card.classList.remove('hidden'));
+                return;
+            }
+
+            cards.forEach(card => {
+                const cardTags = card.dataset.tags.split(',').filter(t => t.length > 0);
+                const hasAllTags = Array.from(activeTags).every(tag => cardTags.includes(tag));
+
+                if (hasAllTags) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
