@@ -7,6 +7,7 @@ on:
     paths:
       - 'home/environments.csv'
       - 'home/generate_html.py'
+  workflow_dispatch:
 
 jobs:
   generate-html:
