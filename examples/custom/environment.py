@@ -4,7 +4,7 @@ from enum import IntEnum
 import jax.random
 import jax.numpy as jnp
 
-from nicewebrl import TimeStep
+from nicewebrl import Timestep
 
 
 # these are parameters that are used to define the environment but don't change
@@ -34,17 +34,17 @@ class Environment:
 
   def reset(self, rng: jax.random.PRNGKey, params: Optional[struct.PyTreeNode] = None):
     """Environment reset logic"""
-    return TimeStep()
+    return Timestep()
 
   def step(
     self,
     rng: jax.random.PRNGKey,
-    prior_timestep: TimeStep,
+    prior_timestep: Timestep,
     action: int,
     params: Optional[struct.PyTreeNode] = None,
   ):
     """Environment dynamics logic."""
-    return TimeStep()
+    return Timestep()
 
   @property
   def num_actions(self) -> int:
@@ -52,7 +52,7 @@ class Environment:
     return 4
 
 
-def render_fn(timestep: TimeStep):
+def render_fn(timestep: Timestep):
   return jnp.array
 
 

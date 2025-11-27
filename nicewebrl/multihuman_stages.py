@@ -15,7 +15,7 @@ The framework is designed for two-agent environments where each human controls o
 with support for action synchronization, state rendering, and experiment data collection.
 """
 
-from typing import List, Callable, Dict, Optional
+from typing import List, Callable, Dict, Optional, Any
 from functools import partial
 import itertools
 import asyncio
@@ -28,13 +28,18 @@ import dataclasses
 # from datetime import datetime
 
 from flax import struct
-from flax import serialization
 import jax
 import jax.numpy as jnp
 
 from nicegui import app, ui, Client
 from nicewebrl import nicejax
-from nicewebrl.nicejax import new_rng, base64_npimage, make_serializable, TimeStep
+from nicewebrl.nicejax import (
+  new_rng,
+  base64_npimage,
+  make_serializable,
+  Timestep,
+  Serializer,
+)
 from nicewebrl.logging import get_logger
 from nicewebrl.utils import retry_with_exponential_backoff
 
@@ -51,10 +56,10 @@ logger = get_logger(__name__)
 global_lock = Lock()
 Image = jnp.ndarray
 
-TimestepCallFn = Callable[[TimeStep], None]
-RenderFn = Callable[[TimeStep], Image]
+TimestepCallFn = Callable[[Timestep], None]
+RenderFn = Callable[[Timestep], Image]
 
-DisplayFn = Callable[["Stage", ui.element, TimeStep], None]
+DisplayFn = Callable[["Stage", ui.element, Timestep], None]
 
 
 def get_room_users():
@@ -74,12 +79,15 @@ def send_clients_environment_action(env_key: str):
 
 
 async def get_latest_stage_state(
-  example: struct.PyTreeNode, name: str
+  example: struct.PyTreeNode, name: str, serializer: Optional[Any] = None
 ) -> StageStateModel | None:
   """
 
   # NOTE: only change is to use room_id instead of browser_id
   """
+  if serializer is None:
+    serializer = Serializer()
+
   logger.info("Getting latest stage state")
   latest = (
     await StageStateModel.filter(
@@ -91,23 +99,30 @@ async def get_latest_stage_state(
   )
 
   if latest is not None:
-    latest = serialization.from_bytes(example, latest.data)
+    latest = serializer.deserialize(latest.data, example)
 
   return latest
 
 
 async def save_stage_state(
-  stage_state, max_retries: int = 5, base_delay: float = 0.3, max_delay: float = 5.0
+  stage_state,
+  serializer: Optional[Any] = None,
+  max_retries: int = 5,
+  base_delay: float = 0.3,
+  max_delay: float = 5.0,
 ):
   """
 
   # NOTE: only change is to use room_id instead of browser_id
   """
+  if serializer is None:
+    serializer = Serializer()
+
   model = StageStateModel(
     session_id=app.storage.user["room_id"],
     stage_idx=app.storage.user["stage_idx"],
     name=stage_state.name,
-    data=serialization.to_bytes(stage_state),
+    data=serializer.serialize(stage_state),
   )
   await safe_save(
     model,
@@ -383,6 +398,7 @@ class MultiHumanLeaderFollowerEnvStage(Stage):
         loaded_stage_state = await get_latest_stage_state(
           example=new_stage_state,
           name=self.name,
+          serializer=self.serializer,
         )
         if loaded_stage_state is None:
           logger.info("No stage state found, starting new stage")
@@ -392,7 +408,9 @@ class MultiHumanLeaderFollowerEnvStage(Stage):
             loaded_stage_from_memory=False,
             stage_started=True,
           )
-          asyncio.create_task(save_stage_state(new_stage_state))
+          asyncio.create_task(
+            save_stage_state(new_stage_state, serializer=self.serializer)
+          )
         else:
           logger.info("Loading stage state from memory")
           await self.set_room_data(
@@ -509,7 +527,7 @@ class MultiHumanLeaderFollowerEnvStage(Stage):
       timestep_data = self.custom_data_fn(timestep)
       timestep_data = jax.tree_map(make_serializable, timestep_data)
 
-    serialized_timestep = serialization.to_bytes(timestep)
+    serialized_timestep = self.serializer.serialize(timestep)
 
     step_metadata = copy.deepcopy(self.metadata)
     step_metadata.update(type="EnvStage", **user_stats)
@@ -621,7 +639,7 @@ class MultiHumanLeaderFollowerEnvStage(Stage):
     if app.storage.user["leader"]:
       # asynchronously save stage state
       # TODO: change saving of stage state so based on room
-      asyncio.create_task(save_stage_state(stage_state))
+      asyncio.create_task(save_stage_state(stage_state, serializer=self.serializer))
       await self.set_room_data(stage_state=stage_state)
 
     ################

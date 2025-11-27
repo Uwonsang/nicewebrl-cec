@@ -51,97 +51,105 @@ TAG_BORDER_SWARMS = "#FFCCBC"
 TAG_BORDER_OPEN_ENDED = "#D1C4E9"
 # ============================================
 
+
 def convert_to_raw_url(url):
-    """Convert GitHub blob URLs to raw URLs"""
-    if 'github.com' in url and '/blob/' in url:
-        # Convert github.com/user/repo/blob/branch/path to raw.githubusercontent.com/user/repo/branch/path
-        url = url.replace('github.com', 'raw.githubusercontent.com')
-        url = url.replace('/blob/', '/')
-    return url
+  """Convert GitHub blob URLs to raw URLs"""
+  if "github.com" in url and "/blob/" in url:
+    # Convert github.com/user/repo/blob/branch/path to raw.githubusercontent.com/user/repo/branch/path
+    url = url.replace("github.com", "raw.githubusercontent.com")
+    url = url.replace("/blob/", "/")
+  return url
+
 
 def format_environment_name(name):
-    """Format environment name by splitting on underscore and capitalizing"""
-    if not name:
-        return name
-    # Split by underscore and capitalize each word
-    words = name.split('_')
-    return ' '.join(word.capitalize() for word in words)
+  """Format environment name by splitting on underscore and capitalizing"""
+  if not name:
+    return name
+  # Split by underscore and capitalize each word
+  words = name.split("_")
+  return " ".join(word.capitalize() for word in words)
+
 
 def get_tag_class(tag):
-    """Convert tag name to CSS class name"""
-    # Convert to lowercase and replace spaces with hyphens
-    class_name = tag.lower().replace(' ', '-')
-    return f"tag tag-{class_name}"
+  """Convert tag name to CSS class name"""
+  # Convert to lowercase and replace spaces with hyphens
+  class_name = tag.lower().replace(" ", "-")
+  return f"tag tag-{class_name}"
+
 
 def generate_html(csv_file, output_file):
-    # Read text.yaml for page content
-    subtitle = ''
-    description = ''
-    github_url = ''
+  # Read text.yaml for page content
+  subtitle = ""
+  description = ""
+  github_url = ""
 
-    with open('text.txt', 'r') as f:
-        for line in f:
-            line = line.strip()
-            if line.startswith('subtitle:'):
-                subtitle = line.replace('subtitle:', '').strip()
-            elif line.startswith('url:'):
-                github_url = line.replace('url:', '').strip()
-            elif line.startswith('description:'):
-                description = line.replace('description:', '').strip()
+  with open("text.txt", "r") as f:
+    for line in f:
+      line = line.strip()
+      if line.startswith("subtitle:"):
+        subtitle = line.replace("subtitle:", "").strip()
+      elif line.startswith("url:"):
+        github_url = line.replace("url:", "").strip()
+      elif line.startswith("description:"):
+        description = line.replace("description:", "").strip()
 
-    # Read CSV and collect all environments with tags
-    environments = []
-    all_tags = set()
+  # Read CSV and collect all environments with tags
+  environments = []
+  all_tags = set()
 
-    with open(csv_file, 'r') as f:
-        # Read raw CSV to get all values including those in unnamed columns
-        lines = f.readlines()
-        if not lines:
-            return
+  with open(csv_file, "r") as f:
+    # Read raw CSV to get all values including those in unnamed columns
+    lines = f.readlines()
+    if not lines:
+      return
 
-        # Parse header
-        header = lines[0].strip().split(',')
-        env_url_index = header.index('environment_url') if 'environment_url' in header else -1
+    # Parse header
+    header = lines[0].strip().split(",")
+    env_url_index = (
+      header.index("environment_url") if "environment_url" in header else -1
+    )
 
-        if env_url_index == -1:
-            return
+    if env_url_index == -1:
+      return
 
-        # Tag columns start after environment_url
-        tag_start_index = env_url_index + 1
+    # Tag columns start after environment_url
+    tag_start_index = env_url_index + 1
 
-        # Find column indices
-        domain_index = header.index('domain') if 'domain' in header else 0
-        domain_url_index = header.index('domain_url') if 'domain_url' in header else 1
-        env_index = header.index('environment') if 'environment' in header else 2
+    # Find column indices
+    domain_index = header.index("domain") if "domain" in header else 0
+    domain_url_index = header.index("domain_url") if "domain_url" in header else 1
+    env_index = header.index("environment") if "environment" in header else 2
 
-        for line in lines[1:]:
-            parts = line.strip().split(',')
-            if len(parts) < 4:
-                continue
+    for line in lines[1:]:
+      parts = line.strip().split(",")
+      if len(parts) < 4:
+        continue
 
-            domain = parts[domain_index] if len(parts) > domain_index else ''
-            domain_url = parts[domain_url_index] if len(parts) > domain_url_index else ''
-            environment = parts[env_index] if len(parts) > env_index else ''
-            environment_url = parts[env_url_index] if len(parts) > env_url_index else ''
+      domain = parts[domain_index] if len(parts) > domain_index else ""
+      domain_url = parts[domain_url_index] if len(parts) > domain_url_index else ""
+      environment = parts[env_index] if len(parts) > env_index else ""
+      environment_url = parts[env_url_index] if len(parts) > env_url_index else ""
 
-            # Collect tags from columns after environment_url
-            tags = []
-            for i in range(tag_start_index, len(parts)):
-                tag_value = parts[i].strip()
-                if tag_value:
-                    tags.append(tag_value)
-                    all_tags.add(tag_value)
+      # Collect tags from columns after environment_url
+      tags = []
+      for i in range(tag_start_index, len(parts)):
+        tag_value = parts[i].strip()
+        if tag_value:
+          tags.append(tag_value)
+          all_tags.add(tag_value)
 
-            environments.append({
-                'domain': domain,
-                'domain_url': domain_url,
-                'environment': environment,
-                'environment_url': convert_to_raw_url(environment_url),
-                'tags': tags
-            })
+      environments.append(
+        {
+          "domain": domain,
+          "domain_url": domain_url,
+          "environment": environment,
+          "environment_url": convert_to_raw_url(environment_url),
+          "tags": tags,
+        }
+      )
 
-    # Generate HTML
-    html = f"""<!DOCTYPE html>
+  # Generate HTML
+  html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -500,68 +508,70 @@ def generate_html(csv_file, output_file):
             <div class="tag-filters">
 """
 
-    # Add tag filters
-    sorted_tags = sorted(all_tags)
-    for tag in sorted_tags:
-        tag_class = get_tag_class(tag).replace('tag ', '')  # Get just the specific tag class
-        html += f"""                <div class="tag-filter {tag_class}" onclick="toggleTag('{tag}')">{tag}</div>
+  # Add tag filters
+  sorted_tags = sorted(all_tags)
+  for tag in sorted_tags:
+    tag_class = get_tag_class(tag).replace(
+      "tag ", ""
+    )  # Get just the specific tag class
+    html += f"""                <div class="tag-filter {tag_class}" onclick="toggleTag('{tag}')">{tag}</div>
 """
 
-    html += """            </div>
+  html += """            </div>
         </div>
 
         <div class="environments-grid">
 """
 
-    # Add each environment
-    for env in environments:
-        domain = env['domain']
-        domain_url = env['domain_url']
-        env_name = env['environment']
-        env_url = env['environment_url']
-        formatted_name = format_environment_name(env_name)
-        tags = env['tags']
-        tags_str = ','.join(tags)
+  # Add each environment
+  for env in environments:
+    domain = env["domain"]
+    domain_url = env["domain_url"]
+    env_name = env["environment"]
+    env_url = env["environment_url"]
+    formatted_name = format_environment_name(env_name)
+    tags = env["tags"]
+    tags_str = ",".join(tags)
 
-        if domain_url:
-            html += f"""            <a href="{domain_url}" target="_blank" class="environment-card" data-tags="{tags_str}">
+    if domain_url:
+      html += f"""            <a href="{domain_url}" target="_blank" class="environment-card" data-tags="{tags_str}">
 """
-        else:
-            html += f"""            <div class="environment-card" data-tags="{tags_str}">
-"""
-
-        html += f"""                <div class="domain-badge">{domain}</div>
-"""
-        if formatted_name:
-            html += f"""                <div class="environment-name">{formatted_name}</div>
+    else:
+      html += f"""            <div class="environment-card" data-tags="{tags_str}">
 """
 
-        html += f"""                <div class="image-container">
+    html += f"""                <div class="domain-badge">{domain}</div>
+"""
+    if formatted_name:
+      html += f"""                <div class="environment-name">{formatted_name}</div>
+"""
+
+    html += f"""                <div class="image-container">
                     <img src="{env_url}" alt="{env_name}" class="environment-image" onerror="this.parentElement.style.display='none'">
                 </div>
 """
 
-        html += """                <div class="environment-tags">
+    html += """                <div class="environment-tags">
 """
-        for tag in tags:
-            tag_class = get_tag_class(tag)
-            html += f"""                    <span class="{tag_class}" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('{tag}');">{tag}</span>
+    for tag in tags:
+      tag_class = get_tag_class(tag)
+      html += f"""                    <span class="{tag_class}" onclick="event.preventDefault(); event.stopPropagation(); toggleTagFromCard('{tag}');">{tag}</span>
 """
-        html += """                </div>
-"""
-
-        if domain_url:
-            html += """            </a>
-"""
-        else:
-            html += """            </div>
+    html += """                </div>
 """
 
-    html += """        </div>
+    if domain_url:
+      html += """            </a>
+"""
+    else:
+      html += """            </div>
 """
 
-    # Close HTML
-    html += """
+  html += """        </div>
+"""
+
+  # Close HTML
+  html += """
     </div>
 
     <script>
@@ -628,11 +638,12 @@ def generate_html(csv_file, output_file):
 </html>
 """
 
-    # Write to file
-    with open(output_file, 'w') as f:
-        f.write(html)
+  # Write to file
+  with open(output_file, "w") as f:
+    f.write(html)
 
-    print(f"Generated {output_file}")
+  print(f"Generated {output_file}")
 
-if __name__ == '__main__':
-    generate_html('environments.csv', 'index.html')
+
+if __name__ == "__main__":
+  generate_html("environments.csv", "index.html")

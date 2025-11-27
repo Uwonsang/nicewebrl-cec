@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import List, Any, Callable, Dict, Optional, Union
 from functools import partial
 import uuid
@@ -9,14 +10,19 @@ import dataclasses
 from datetime import datetime, timezone
 
 from flax import struct
-from flax import serialization
 import jax
 import jax.numpy as jnp
 import random
 from tortoise import fields, models
 
 from nicegui import app, ui
-from nicewebrl.nicejax import new_rng, base64_npimage, make_serializable, TimeStep
+from nicewebrl.nicejax import (
+  new_rng,
+  base64_npimage,
+  make_serializable,
+  Timestep,
+  Serializer,
+)
 from nicewebrl.logging import get_logger
 from nicewebrl.utils import retry_with_exponential_backoff
 from nicewebrl.utils import write_msgpack_record
@@ -43,10 +49,10 @@ logger = get_logger(__name__)
 Image = jnp.ndarray
 Params = struct.PyTreeNode
 
-TimestepCallFn = Callable[[TimeStep], None]
-RenderFn = Callable[[TimeStep], Image]
+TimestepCallFn = Callable[[Timestep], None]
+RenderFn = Callable[[Timestep], Image]
 
-DisplayFn = Callable[["Stage", ui.element, TimeStep], None]
+DisplayFn = Callable[["Stage", ui.element, Timestep], None]
 
 
 def time_diff(t1, t2) -> float:
@@ -80,9 +86,35 @@ class EnvStageState(struct.PyTreeNode):
   name: str = "stage"
 
 
+@dataclass
+class TorchEnvStageState:
+  """Stage state for PyTorch environments. Parallel to nicejax.EnvStageState."""
+
+  timestep: Any  # TensorDict Timestep
+  nsteps: int = 1
+  nepisodes: int = 1
+  nsuccesses: int = 0
+  name: str = "stage"
+
+
+def pytree_replace(obj, **changes):
+  """Replace fields in a flax PyTreeNode object."""
+  return obj.replace(**changes)
+
+
+def dataclass_replace(obj, **changes):
+  """Replace fields in a dataclass object."""
+  return dataclasses.replace(obj, **changes)
+
+
 async def get_latest_stage_state(
-  example: struct.PyTreeNode, name: str
+  example: struct.PyTreeNode, name: str, serializer: Optional[Any] = None
 ) -> StageStateModel | None:
+  if serializer is None:
+    from nicewebrl.nicejax import Serializer
+
+    serializer = Serializer()
+
   logger.info("Getting latest stage state")
   latest = (
     await StageStateModel.filter(
@@ -95,7 +127,7 @@ async def get_latest_stage_state(
   )
 
   if latest is not None:
-    latest = serialization.from_bytes(example, latest.data)
+    latest = serializer.deserialize(latest.data, example)
 
   return latest
 
@@ -149,13 +181,22 @@ async def safe_save(
 
 
 async def save_stage_state(
-  stage_state, max_retries: int = 5, base_delay: float = 0.3, max_delay: float = 5.0
+  stage_state,
+  serializer: Optional[Any] = None,
+  max_retries: int = 5,
+  base_delay: float = 0.3,
+  max_delay: float = 5.0,
 ):
+  if serializer is None:
+    from nicewebrl.nicejax import Serializer
+
+    serializer = Serializer()
+
   model = StageStateModel(
     session_id=app.storage.browser["id"],
     # stage_idx=app.storage.user["stage_idx"],
     name=stage_state.name,
-    data=serialization.to_bytes(stage_state),
+    data=serializer.serialize(stage_state),
   )
   await safe_save(
     model,
@@ -285,20 +326,16 @@ class EnvStage(Stage):
       web_env (Any): The environment instance that handles state transitions and interactions.
       env_params (struct.PyTreeNode): Parameters for the environment.
       render_fn (Callable): Function to render the environment state as an image.
-      reset_display_fn (Callable): Function called to reset the display between episodes.
       vmap_render_fn (Callable): Vectorized version of render_fn for batch processing.
+      reset_display_fn (Callable): Function called to reset the display between episodes.
       evaluate_success_fn (Callable): Function that takes a timestep and returns 1 for success, 0 for failure.
       check_finished (Callable): Additional function to check if stage should end (beyond max_episodes/min_success).
       custom_data_fn (Callable): Optional function to extract additional data from timesteps for logging.
-      state_cls (EnvStageState): Class used to store the stage's state information.
       action_to_name (Dict[int, str]): Optional mapping from action indices to human-readable names.
-      next_button (bool): Whether to show a "next" button (default False).
       notify_success (bool): Whether to show success/failure notifications.
       msg_display_time (int): How long to display notification messages (in milliseconds).
-      end_on_final_timestep (bool): Whether to end the stage on the final timestep.
       user_save_file_fn (Callable[[], str]): Function that returns the path to save user data.
       verbosity (int): Level of logging verbosity (0 for minimal, higher for more).
-      precompile (bool): Whether to precompile the render_fn.
   """
 
   instruction: str = "instruction"
@@ -307,8 +344,8 @@ class EnvStage(Stage):
   web_env: JaxWebEnv = None
   env_params: struct.PyTreeNode = None
   render_fn: RenderFn = None
-  reset_display_fn: Optional[DisplayFn] = None
   vmap_render_fn: Optional[Callable] = None
+  reset_display_fn: Optional[DisplayFn] = None
   evaluate_success_fn: TimestepCallFn = None
   check_finished: Optional[TimestepCallFn] = None
   custom_data_fn: Optional[Callable] = None
@@ -322,18 +359,11 @@ class EnvStage(Stage):
   autoreset_on_done: bool = False
   ignore_missing_data: bool = True
   verbosity: int = 0
-  preprocess_timestep: Optional[Callable[[TimeStep], TimeStep]] = lambda t: t
-  precompile: bool = True
+  preprocess_timestep: Optional[Callable[[Timestep], Timestep]] = None
+  framework: str = "jax"
 
   def __post_init__(self):
     super().__post_init__()
-    if self.vmap_render_fn is None:
-      if self.precompile:
-        self.vmap_render_fn = self.web_env.precompile_vmap_render_fn(
-          self.render_fn, self.env_params
-        )
-      else:
-        self.vmap_render_fn = jax.jit(jax.vmap(self.render_fn))
 
     self.key_to_action = {k: a for a, k in enumerate(self.action_keys)}
     if self.action_to_name is None:
@@ -347,10 +377,41 @@ class EnvStage(Stage):
     if self.check_finished is None:
       self.check_finished = lambda timestep: False
 
-    if self.state_cls is None:
-      self.state_cls = partial(EnvStageState, name=self.name)
+    self._user_queues = {}
 
-    self._user_queues = {}  # new: dictionary to store per-user queues
+    # determine if we can precompute next steps
+    self.precompute_next_steps = (
+      self.vmap_render_fn is not None
+      and hasattr(self.web_env, "next_steps")
+      and callable(getattr(self.web_env, "next_steps"))
+    )
+
+    if self.render_fn is None:
+      if hasattr(self.web_env, "render_fn"):
+        self.render_fn = self.web_env.render_fn
+      else:
+        raise ValueError("EnvStage requires a render_fn")
+
+    if self.preprocess_timestep is None:
+      if hasattr(self.web_env, "preprocess_timestep"):
+        self.preprocess_timestep = self.web_env.preprocess_timestep
+      else:
+        self.preprocess_timestep = lambda t: t
+
+    if self.framework == "jax":
+      from nicewebrl.nicejax import Serializer
+
+      self.serializer = Serializer()
+      self.state_cls = partial(EnvStageState, name=self.name)
+      self._replace_fn = pytree_replace
+    elif self.framework == "torch":
+      from nicewebrl.nicetorch import Serializer
+
+      self.serializer = Serializer()
+      self.state_cls = partial(TorchEnvStageState, name=self.name)
+      self._replace_fn = dataclass_replace
+    else:
+      raise ValueError(f"Unknown framework '{self.framework}' for EnvStage")
 
   def get_user_queue(self):
     """Get queue for current user, creating if needed"""
@@ -405,20 +466,27 @@ class EnvStage(Stage):
     # get next images and store them client-side
     # setup code to display next state
     #############################
-    rng = new_rng()
     timestep = self.get_user_data("stage_state").timestep
-    next_timesteps = self.web_env.next_steps(rng, timestep, self.env_params)
-    next_images = self.vmap_render_fn(next_timesteps)
+    if self.precompute_next_steps:
+      rng = new_rng()
+      next_timesteps = self.web_env.next_steps(rng, timestep, self.env_params)
+      next_images = self.vmap_render_fn(next_timesteps)
 
-    next_images = {
-      self.action_keys[idx]: base64_npimage(image)
-      for idx, image in enumerate(next_images)
-    }
+      next_images = {
+        self.action_keys[idx]: base64_npimage(image)
+        for idx, image in enumerate(next_images)
+      }
 
-    js_code = f"window.next_states = {next_images};"
+      js_code = f"window.next_states = {next_images};"
 
-    ui.run_javascript(js_code)
-    await self.set_user_data(next_timesteps=next_timesteps)
+      ui.run_javascript(js_code)
+      await self.set_user_data(next_timesteps=next_timesteps)
+    else:
+      # Create a dummy next_states object that allows all action keys
+      dummy_next_states = {key: "" for key in self.action_keys}
+      js_code = f"window.next_states = {dummy_next_states};"
+      ui.run_javascript(js_code)
+
     #############################
     # display image
     #############################
@@ -448,6 +516,9 @@ class EnvStage(Stage):
     Then try to load stage state from memory using the stage state to get the right types.
     If no stage state is found, continue with the new stage state.
     """
+    ui.run_javascript(
+      f"window.update_from_next_state = {str(self.precompute_next_steps).lower()};"
+    )
 
     if self.verbosity:
       logger.info("=" * 30)
@@ -463,13 +534,14 @@ class EnvStage(Stage):
     loaded_stage_state = await get_latest_stage_state(
       example=new_stage_state,
       name=self.name,
+      serializer=self.serializer,
     )
 
     if loaded_stage_state is None:
       logger.info(f"No stage {self.name} state found, starting new stage")
       # await self.start_stage(container, new_stage_state)
       await self.set_user_data(stage_state=new_stage_state)
-      asyncio.create_task(save_stage_state(new_stage_state))
+      asyncio.create_task(save_stage_state(new_stage_state, serializer=self.serializer))
 
       # DISPLAY NEW EPISODE
       await self.wait_for_start(container)
@@ -505,7 +577,7 @@ class EnvStage(Stage):
       timestep_data = self.custom_data_fn(timestep)
       timestep_data = jax_tree_map(make_serializable, timestep_data)
 
-    serialized_timestep = serialization.to_bytes(timestep)
+    serialized_timestep = self.serializer.serialize(timestep)
 
     step_metadata = copy.deepcopy(self.metadata)
     step_metadata.update(type="EnvStage", **user_stats)
@@ -637,26 +709,31 @@ class EnvStage(Stage):
     # e.g. key presses
     #############################
     # asynchonously save experiment data by putting in a save queue
-    # save prior timestep + current event information
     asyncio.create_task(self.save_key_data(event))
 
     #############################
     # automatically reset on done if flag is set
     #############################
     timestep = self.get_user_data("stage_state").timestep
+
+    def get_next_timestep(key):
+      action_idx = self.key_to_action[key]
+      if self.precompute_next_steps:
+        # use action to select from avaialble next time-steps
+        next_timesteps = self.get_user_data("next_timesteps")
+        return jax_tree_map(lambda t: t[action_idx], next_timesteps)
+      else:
+        rng = new_rng()
+        return self.web_env.step(rng, timestep, action_idx, self.env_params)
+
     if self.autoreset_on_done:
       if timestep.last():
         rng = new_rng()
         timestep = self.web_env.reset(rng, self.env_params)
       else:
-        action_idx = self.key_to_action[key]
-        next_timesteps = self.get_user_data("next_timesteps")
-        timestep = jax_tree_map(lambda t: t[action_idx], next_timesteps)
+        timestep = get_next_timestep(key)
     else:
-      # use action to select from avaialble next time-steps
-      action_idx = self.key_to_action[key]
-      next_timesteps = self.get_user_data("next_timesteps")
-      timestep = jax_tree_map(lambda t: t[action_idx], next_timesteps)
+      timestep = get_next_timestep(key)
 
     #############################
     # update stage variables
@@ -673,7 +750,8 @@ class EnvStage(Stage):
     success = self.evaluate_success_fn(timestep, self.env_params)
 
     stage_state = self.get_user_data("stage_state")
-    stage_state = stage_state.replace(
+    stage_state = self._replace_fn(
+      stage_state,
       timestep=timestep,
       nsteps=stage_state.nsteps + 1,
       nepisodes=stage_state.nepisodes + timestep.first(),
@@ -681,7 +759,7 @@ class EnvStage(Stage):
     )
 
     # asynchronously save stage state
-    asyncio.create_task(save_stage_state(stage_state))
+    asyncio.create_task(save_stage_state(stage_state, serializer=self.serializer))
     await self.set_user_data(stage_state=stage_state)
 
     ################
@@ -699,12 +777,20 @@ class EnvStage(Stage):
     ################
     if episode_reset:
       await self.wait_for_start(container)
-    await self.step_and_send_timestep(
-      container,
+
+    if self.precompute_next_steps:
       # image is normally updated client-side
       # when episode resets, update server-side
-      update_display=episode_reset,
-    )
+      await self.step_and_send_timestep(
+        container,
+        update_display=episode_reset,
+      )
+    else:
+      await self.step_and_send_timestep(
+        container,
+        update_display=True,
+      )
+
     ################
     # Episode over?
     ################
@@ -1040,7 +1126,8 @@ class Block(Container):
 
   async def finished(self):
     stage_idx = await self.get_block_stage_idx()
-    return stage_idx >= len(self.stages) 
+    return stage_idx >= len(self.stages)
+
 
 def broadcast_metadata(blocks: List[Block]) -> List[Stage]:
   """This function assigns the block metadata to each stage."""

@@ -14,7 +14,6 @@ from nicewebrl.utils import get_user_lock, get_progress
 logger = get_logger(__name__)
 
 
-
 @dataclasses.dataclass
 class Experiment(Container):
   blocks: List[Union[Block, Stage]] = dataclasses.field(default_factory=list)
@@ -34,7 +33,7 @@ class Experiment(Container):
         block = Block(
           stages=[item],
           name=item.name if item.name else f"auto_block_{item.unique_id}",
-          randomize=False
+          randomize=False,
         )
         converted_blocks.append(block)
       else:
@@ -189,10 +188,10 @@ class ExperimentSet(Container):
   experiments: Dict[str, Experiment] = dataclasses.field(default_factory=list)
 
   def set_experiment(self, experiment: str):
-    app.storage.user['experiment'] = experiment
+    app.storage.user["experiment"] = experiment
 
   def get_experiment(self):
-    name = app.storage.user['experiment']
+    name = app.storage.user["experiment"]
     return self.experiments[name]
 
   # enable dict-like access

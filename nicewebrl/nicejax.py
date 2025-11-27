@@ -20,9 +20,6 @@ from PIL import Image
 
 from nicewebrl.logging import get_logger
 
-Timestep = Any
-RenderFn = Callable[[Timestep], jax.Array]
-
 logger = get_logger(__name__)
 
 
@@ -113,7 +110,7 @@ class StepType(jnp.uint8):
 EnvParams = struct.PyTreeNode
 
 
-class TimeStep(struct.PyTreeNode):
+class Timestep(struct.PyTreeNode):
   state: struct.PyTreeNode
 
   step_type: StepType
@@ -129,6 +126,9 @@ class TimeStep(struct.PyTreeNode):
 
   def last(self):
     return self.step_type == StepType.LAST
+
+
+RenderFn = Callable[[Timestep], jax.Array]
 
 
 class TimestepWrapper(object):
@@ -154,7 +154,7 @@ class TimestepWrapper(object):
 
   def reset(
     self, key: jax.random.PRNGKey, params: Optional[struct.PyTreeNode] = None
-  ) -> Tuple[TimeStep, dict]:
+  ) -> Tuple[Timestep, dict]:
     if self._use_params:
       obs, state = self._env.reset(key, params)
     else:
@@ -165,7 +165,7 @@ class TimestepWrapper(object):
       shape = first_leaf.shape[: self._num_leading_dims]
     else:
       shape = ()
-    timestep = TimeStep(
+    timestep = Timestep(
       state=state,
       observation=obs,
       discount=jnp.ones(shape, dtype=jnp.float32),
@@ -177,10 +177,10 @@ class TimestepWrapper(object):
   def step(
     self,
     key: jax.random.PRNGKey,
-    prior_timestep: TimeStep,
+    prior_timestep: Timestep,
     action: Union[int, float],
     params: Optional[struct.PyTreeNode] = None,
-  ) -> Tuple[TimeStep, dict]:
+  ) -> Tuple[Timestep, dict]:
     def env_step(prior_timestep_):
       if self._use_params:
         obs, state, reward, done, info = self._env.step(
@@ -195,7 +195,7 @@ class TimestepWrapper(object):
         done = done["__all__"]
       if type(reward) == dict:  # multi-agent
         reward = reward["agent_0"].astype(jnp.float32)
-      return TimeStep(
+      return Timestep(
         state=state,
         observation=obs,
         discount=1.0 - jnp.asarray(done).astype(jnp.float32),
@@ -360,3 +360,17 @@ class MultiAgentJaxWebEnv:
     vmap_render_fn = vmap_render_fn.lower(next_timesteps).compile()
     logger.info(f"\ttime: {time.time() - start}")
     return vmap_render_fn
+
+
+class Serializer:
+  """Serialize and deserialize PyTreeNodes using flax.serialization."""
+
+  def serialize(self, pytree: struct.PyTreeNode) -> bytes:
+    """Serialize a PyTreeNode to bytes."""
+    return serialization.to_bytes(pytree)
+
+  def deserialize(
+    self, serialized: bytes, pytree_template: struct.PyTreeNode
+  ) -> struct.PyTreeNode:
+    """Deserialize bytes back into a PyTreeNode using the provided template."""
+    return serialization.from_bytes(pytree_template, serialized)

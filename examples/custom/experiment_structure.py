@@ -8,7 +8,7 @@ import jax.numpy as jnp
 
 
 import nicewebrl
-from nicewebrl import JaxWebEnv, base64_npimage, TimeStep
+from nicewebrl import JaxWebEnv, base64_npimage, Timestep
 from nicewebrl import Stage, EnvStage
 from nicewebrl import get_logger
 from nicewebrl import SimpleExperiment
@@ -95,7 +95,7 @@ def make_image_html(src):
 
 
 async def env_stage_display_fn(
-  stage: EnvStage, container: ui.element, timestep: TimeStep
+  stage: EnvStage, container: ui.element, timestep: Timestep
 ):
   state_image = stage.render_fn(timestep)
   state_image = base64_npimage(state_image)
@@ -122,7 +122,7 @@ async def env_stage_display_fn(
     ui.html(make_image_html(src=state_image))
 
 
-def evaluate_success_fn(timestep: TimeStep, params: Optional[struct.PyTreeNode] = None):
+def evaluate_success_fn(timestep: Timestep, params: Optional[struct.PyTreeNode] = None):
   """Episode finishes if person gets 5 achievements"""
   return timestep.reward.sum() > 0
 
