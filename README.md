@@ -2,6 +2,14 @@
 
 This repository is the official implementation of [NiceWebRL: a Python library for human subject experiments with reinforcement learning environments](https://arxiv.org/pdf/2508.15693)
 
+<p align="center">
+  <img src="assets/nicewebrl-demo.gif" alt="NiceWebRL Demo" style="width: 100%; max-width: 800px;">
+</p>
+
+<p align="center">
+  <a href="https://kempnerinstitute.github.io/nicewebrl/">🎮 Try these environments yourself</a>
+</p>
+
 **Table of Contents**
 
 - [Install](#install)
