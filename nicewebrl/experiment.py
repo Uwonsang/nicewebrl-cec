@@ -229,6 +229,10 @@ class Experiment(Container):
       app.storage.user["stage_idx"] = stage_idx + 1
     get_progress()
 
+    # if the block has no stages left, move on to the next block
+    if not await block.not_finished():
+      await self.advance_block()
+
   def not_finished(self):
     block_idx = self.get_block_idx()
     return block_idx < len(self.blocks)
