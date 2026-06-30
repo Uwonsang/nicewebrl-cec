@@ -259,7 +259,7 @@ async def start_experiment(
   if on_termination_fn:
     nicewebrl.clear_element(meta_container)
     nicewebrl.clear_element(stage_container)
-    result = on_termination_fn()
+    result = on_termination_fn(meta_container, stage_container)
     if asyncio.iscoroutine(result):
       await result
 
