@@ -470,15 +470,10 @@ class EnvStage(Stage):
     if self.precompute_next_steps:
       rng = new_rng()
       next_timesteps = self.web_env.next_steps(rng, timestep, self.env_params)
-      current_score = self.get_user_data("score", 0.0)
 
       next_images = self.vmap_render_fn(next_timesteps)
       next_images = {
-        self.action_keys[idx]: base64_npimage(
-        overlay_score_text(
-          np.array(image), current_score + float(next_timesteps.reward[idx])
-        )
-      )
+        self.action_keys[idx]: base64_npimage(image)
         for idx, image in enumerate(next_images)
       }
 
@@ -1016,9 +1011,15 @@ class MultiAgentEnvStage(EnvStage):
       h_id=self.get_user_data("human_id"),
     )
 
+    current_score = self.get_user_data("score", 0.0)
+
     next_images = self.vmap_render_fn(next_timesteps)
     next_images = {
-      self.action_keys[idx]: base64_npimage(image)
+      self.action_keys[idx]: base64_npimage(
+        overlay_score_text(
+          np.array(image), current_score + float(next_timesteps.reward[idx])
+        )
+      )
       for idx, image in enumerate(next_images)
     }
 
