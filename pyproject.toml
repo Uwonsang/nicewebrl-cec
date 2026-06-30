@@ -18,7 +18,7 @@ classifiers = [
 ]
 dependencies = [
     "nicegui",
-    "tortoise-orm",
+    "tortoise-orm>=0.19.0,<1.0",
     "Pillow",
     "jax>=0.4.16",
     "jaxlib>=0.4.16",
