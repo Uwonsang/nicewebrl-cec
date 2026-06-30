@@ -30,7 +30,7 @@ from nicewebrl.nicejax import JaxWebEnv, MultiAgentJaxWebEnv
 import numpy as np
 from nicewebrl.container import Container
 from nicewebrl import user_data_file
-
+from jaxmarl.viz.overcooked_jitted_visualizer import overlay_score_text
 
 try:
   jax_tree_map = jax.tree.map
@@ -470,10 +470,15 @@ class EnvStage(Stage):
     if self.precompute_next_steps:
       rng = new_rng()
       next_timesteps = self.web_env.next_steps(rng, timestep, self.env_params)
-      next_images = self.vmap_render_fn(next_timesteps)
+      current_score = self.get_user_data("score", 0.0)
 
+      next_images = self.vmap_render_fn(next_timesteps)
       next_images = {
-        self.action_keys[idx]: base64_npimage(image)
+        self.action_keys[idx]: base64_npimage(
+        overlay_score_text(
+          np.array(image), current_score + float(next_timesteps.reward[idx])
+        )
+      )
         for idx, image in enumerate(next_images)
       }
 
@@ -757,6 +762,9 @@ class EnvStage(Stage):
       nepisodes=stage_state.nepisodes + timestep.first(),
       nsuccesses=stage_state.nsuccesses + success,
     )
+
+    score = self.get_user_data("score", 0.0) + float(timestep.reward)
+    await self.set_user_data(score=score)
 
     # asynchronously save stage state
     asyncio.create_task(save_stage_state(stage_state, serializer=self.serializer))
